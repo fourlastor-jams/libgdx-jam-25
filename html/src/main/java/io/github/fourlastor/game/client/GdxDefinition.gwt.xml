@@ -5,7 +5,7 @@
 	<inherits name="com.badlogic.gdx.ai" />
 	<inherits name="regexodus" />
 	<inherits name="textratypist" />
-
+ Stage stage // Default value: stage
 	<inherits name="io.github.fourlastor.GdxGame" />
 	<inherits name="io.github.fourlastor.Harlequin" />
 	<entry-point class="io.github.fourlastor.game.client.HtmlLauncher" />

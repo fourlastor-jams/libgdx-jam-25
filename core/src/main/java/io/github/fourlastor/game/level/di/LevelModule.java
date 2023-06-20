@@ -2,6 +2,7 @@ package io.github.fourlastor.game.level.di;
 
 import com.badlogic.gdx.ai.msg.MessageDispatcher;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import dagger.Module;
@@ -13,8 +14,8 @@ public class LevelModule {
 
     @Provides
     @ScreenScoped
-    public Stage stage() {
-        return new Stage(new FitViewport(9f, 16f));
+    public Stage stage(SpriteBatch batch) {
+        return new Stage(new FitViewport(16f, 9f), batch);
     }
 
     @Provides
