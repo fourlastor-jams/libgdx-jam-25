@@ -14,7 +14,7 @@ import javax.inject.Singleton;
 public class AssetsModule {
 
     private static final String PATH_TEXTURE_ATLAS = "images/packed/images.pack.atlas";
-    private static final String PATH_WAVE_SHADER = "shaders/wave.vs";
+    private static final String PATH_WAVE_SHADER = "shaders/wave.fs";
     public static final String WHITE_PIXEL = "white-pixel";
     private static final String PATH_UNDERWORLD_SHADER = "shaders/underworld.fs";
 
