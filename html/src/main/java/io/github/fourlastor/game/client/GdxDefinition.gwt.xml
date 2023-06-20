@@ -5,7 +5,6 @@
 	<inherits name="com.badlogic.gdx.ai" />
 	<inherits name="regexodus" />
 	<inherits name="textratypist" />
-
 	<inherits name="io.github.fourlastor.GdxGame" />
 	<inherits name="io.github.fourlastor.Harlequin" />
 	<entry-point class="io.github.fourlastor.game.client.HtmlLauncher" />

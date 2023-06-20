@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     env:
-      ITCH_PROJECT: 'fourlastor/gdx-java-base'
+      ITCH_PROJECT: 'sandramoen/libgxd-game-jam-25'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,8 +20,7 @@ jobs:
         uses: ./.github/actions/gradle-build
         with:
           arguments: html:dist
-      - name: Deploy 🚀 (disabled temporarily)
-        if: false
+      - name: Deploy 🚀
         run: butler push html/build/dist $ITCH_PROJECT:html
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
