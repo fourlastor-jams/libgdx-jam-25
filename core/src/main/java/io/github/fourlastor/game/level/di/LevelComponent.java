@@ -6,7 +6,7 @@ import io.github.fourlastor.game.level.LevelScreen;
 import io.github.fourlastor.game.route.RouterModule;
 
 @ScreenScoped
-@Subcomponent(modules = {LevelModule.class, RouterModule.class, EcsModule.class})
+@Subcomponent(modules = {LevelModule.class, RouterModule.class})
 public interface LevelComponent {
 
     @ScreenScoped
