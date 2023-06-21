@@ -66,10 +66,10 @@ public class Positions {
     public static GridPoint2 toCoordinate(Vector2 position) {
         float x = position.x - ORIGIN_LEFT;
         float y = position.y - ORIGIN_BOTTOM;
-        return new GridPoint2().set(
-                MathUtils.floor(x / TILE_WIDTH + y / TILE_HEIGHT) - 1,
-                MathUtils.floor(y / TILE_HEIGHT - x / TILE_WIDTH)
-        );
+        return new GridPoint2()
+                .set(
+                        MathUtils.floor(x / TILE_WIDTH + y / TILE_HEIGHT) - 1,
+                        MathUtils.floor(y / TILE_HEIGHT - x / TILE_WIDTH));
     }
 
     private static List<GridPoint2> positions(Player player) {
