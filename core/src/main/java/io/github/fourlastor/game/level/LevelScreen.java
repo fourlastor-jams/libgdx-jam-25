@@ -1,51 +1,40 @@
 package io.github.fourlastor.game.level;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.utils.ScreenUtils;
 import javax.inject.Inject;
 
 public class LevelScreen extends ScreenAdapter {
 
-    private final Engine engine;
-    private final Viewport viewport;
-    private final EntitiesFactory entitiesFactory;
-
-    private final World world;
+    private final Stage stage;
 
     @Inject
-    public LevelScreen(Engine engine, Viewport viewport, EntitiesFactory entitiesFactory, World world) {
-        this.engine = engine;
-        this.viewport = viewport;
-        this.entitiesFactory = entitiesFactory;
-        this.world = world;
+    public LevelScreen(Stage stage, TextureAtlas atlas) {
+        this.stage = stage;
+        Image image = new Image(atlas.findRegion("royal-game-bg"));
+        stage.addActor(image);
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
     public void render(float delta) {
-        engine.update(delta);
+        ScreenUtils.clear(Color.TEAL);
+        stage.getViewport().apply();
+        stage.act();
+        stage.draw();
     }
 
     @Override
-    public void show() {
-        // entitiesFactory.create(...)
-    }
+    public void show() {}
 
     @Override
-    public void hide() {
-        engine.removeAllEntities();
-        engine.removeAllSystems();
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        world.dispose();
-    }
+    public void hide() {}
 }
