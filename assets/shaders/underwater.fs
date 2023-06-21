@@ -11,7 +11,7 @@ uniform float u_time;
 uniform sampler2D u_texture;
 
 float GodRay(float scale,float threshold,float speed,float angle, vec2 uv){
-	float value = pow(sin((uv.x+uv.y*angle+u_time*speed)*scale),6.0);
+	float value = pow(sin((uv.x+uv.y*angle+u_time*speed)*scale*10.0),6.0);
     value+=float(threshold<value);
     return clamp(value,0.0,1.0);
 }
@@ -34,5 +34,5 @@ void main()
     vec3 WaterBot = vec3(0.08,0.12,0.3);
     vec3 WaterColor = WaterBot+uv.y*(WaterTop-WaterBot);
     vec3 Color = WaterColor+light*(LightColor-WaterColor);
-	gl_FragColor = vec4(Color,1.0 + color.r); // adding color.r otherwise the shader compiles out u_texture and fails
+	gl_FragColor = vec4(Color,0.4f + color.r * 0.0001); // adding color.r otherwise the shader compiles out u_texture and fails
 }

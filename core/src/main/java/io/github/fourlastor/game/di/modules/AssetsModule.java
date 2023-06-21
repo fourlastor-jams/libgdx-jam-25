@@ -16,7 +16,7 @@ public class AssetsModule {
     private static final String PATH_TEXTURE_ATLAS = "images/packed/images.pack.atlas";
     private static final String PATH_WAVE_SHADER = "shaders/wave.fs";
     public static final String WHITE_PIXEL = "white-pixel";
-    private static final String PATH_UNDERWORLD_SHADER = "shaders/underworld.fs";
+    private static final String PATH_UNDERWATER_SHADER = "shaders/underwater.fs";
 
     @Provides
     @Singleton
@@ -27,7 +27,7 @@ public class AssetsModule {
                 new ShaderProgramLoader.ShaderProgramParameter();
         useDefaultVertexShader.vertexFile = "shaders/default.vs";
         assetManager.load(PATH_WAVE_SHADER, ShaderProgram.class, useDefaultVertexShader);
-        assetManager.load(PATH_UNDERWORLD_SHADER, ShaderProgram.class, useDefaultVertexShader);
+        assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.finishLoading();
         return assetManager;
     }
