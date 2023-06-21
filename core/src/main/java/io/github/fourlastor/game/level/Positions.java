@@ -54,13 +54,13 @@ public class Positions {
         return positions(player).get(position);
     }
 
-    public static Vector2 toWorldAtOrigin(Player player, int position, Vector2 result) {
+    public static Vector2 toWorldAtOrigin(Player player, int position) {
         GridPoint2 map = positionFor(player, position);
-        return result.set(ORIGIN_LEFT, ORIGIN_BOTTOM).add((map.x - map.y) * HALF_WIDTH, (map.x + map.y) * HALF_HEIGHT);
+        return new Vector2(ORIGIN_LEFT, ORIGIN_BOTTOM).add((map.x - map.y) * HALF_WIDTH, (map.x + map.y) * HALF_HEIGHT);
     }
 
-    public static Vector2 toWorldAtCenter(Player player, int position, Vector2 result) {
-        return toWorldAtOrigin(player, position, result).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
+    public static Vector2 toWorldAtCenter(Player player, int position) {
+        return toWorldAtOrigin(player, position).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
     }
 
     public static GridPoint2 toCoordinate(Vector2 position) {

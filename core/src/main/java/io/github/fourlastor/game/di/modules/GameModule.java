@@ -6,6 +6,8 @@ import dagger.Provides;
 import io.github.fourlastor.game.GdxGame;
 import io.github.fourlastor.game.intro.IntroComponent;
 import io.github.fourlastor.game.level.di.LevelComponent;
+import squidpony.squidmath.GWTRNG;
+
 import java.util.Random;
 import javax.inject.Singleton;
 
@@ -20,7 +22,8 @@ public class GameModule {
     }
 
     @Provides
-    public Random random() {
-        return new Random();
+    @Singleton
+    public GWTRNG random() {
+        return new GWTRNG();
     }
 }
