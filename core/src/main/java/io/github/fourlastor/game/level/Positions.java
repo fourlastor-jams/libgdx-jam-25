@@ -15,8 +15,8 @@ public class Positions {
     private static final float HALF_HEIGHT = TILE_HEIGHT / 2f;
     private static final int TILE_THICKNESS = 16;
 
-    private static final int ORIGIN_BOTTOM = 3;
-    private static final int ORIGIN_LEFT = 230;
+    private static final int ORIGIN_BOTTOM = 2;
+    private static final int ORIGIN_LEFT = 315;
     private static final List<GridPoint2> P1_INITIAL_POSITIONS =
             Arrays.asList(new GridPoint2(2, 4), new GridPoint2(2, 5), new GridPoint2(2, 6), new GridPoint2(2, 7));
     private static final List<GridPoint2> P2_INITIAL_POSITIONS =

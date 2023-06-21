@@ -1,5 +1,6 @@
 package io.github.fourlastor.game;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -37,6 +38,7 @@ public class GdxGame extends Game implements Router {
         // 0, 0);
         //            Gdx.graphics.setCursor(customCursor);
         //        }
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         Gdx.input.setInputProcessor(multiplexer);
         goToLevel();
     }

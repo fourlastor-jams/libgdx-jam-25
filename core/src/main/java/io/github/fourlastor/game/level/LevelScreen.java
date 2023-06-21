@@ -20,7 +20,7 @@ public class LevelScreen extends ScreenAdapter {
     @Inject
     public LevelScreen(Stage stage, TextureAtlas atlas) {
         this.stage = stage;
-        Image image = new Image(atlas.findRegion("simple_board"));
+        Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
         pawn = new TextureRegionDrawable(atlas.findRegion("whitePixel")).tint(Color.BLACK);
 

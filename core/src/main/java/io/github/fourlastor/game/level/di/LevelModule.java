@@ -15,7 +15,7 @@ public class LevelModule {
     @Provides
     @ScreenScoped
     public Stage stage(SpriteBatch batch) {
-        return new Stage(new FitViewport(400f, 300f), batch);
+        return new Stage(new FitViewport(533, 300f), batch);
     }
 
     @Provides
