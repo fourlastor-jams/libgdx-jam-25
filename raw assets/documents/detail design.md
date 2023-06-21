@@ -3,6 +3,7 @@
 This document details the parts, mechanics, rules for the actual game. Supposedly played by the gods of Mesopotamia.
 
 ![20230621_091119~2](https://github.com/fourlastor-jams/libgdx-jam-25/assets/4059636/2efe9c2c-ce65-41cb-86d2-5cd29546f028)
+**Please do note the image is wrong, there are only two tiles in the thin part, not three!**
 
 ## Game of Ur
 * Game of Ur is about 4500 years old.
