@@ -1,6 +1,7 @@
 package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.math.GridPoint2;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +61,15 @@ public class Positions {
 
     public static Vector2 toWorldAtCenter(Player player, int position, Vector2 result) {
         return toWorldAtOrigin(player, position, result).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
+    }
+
+    public static GridPoint2 toCoordinate(Vector2 position) {
+        float x = position.x - ORIGIN_LEFT;
+        float y = position.y - ORIGIN_BOTTOM;
+        return new GridPoint2().set(
+                MathUtils.floor(x / TILE_WIDTH + y / TILE_HEIGHT) - 1,
+                MathUtils.floor(y / TILE_HEIGHT - x / TILE_WIDTH)
+        );
     }
 
     private static List<GridPoint2> positions(Player player) {

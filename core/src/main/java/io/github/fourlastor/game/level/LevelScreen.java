@@ -1,8 +1,12 @@
 package io.github.fourlastor.game.level;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -14,11 +18,14 @@ import javax.inject.Inject;
 
 public class LevelScreen extends ScreenAdapter {
 
+    private final InputMultiplexer inputMultiplexer;
+
     private final Stage stage;
     private final Drawable pawn;
 
     @Inject
-    public LevelScreen(Stage stage, TextureAtlas atlas) {
+    public LevelScreen(InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas) {
+        this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
@@ -54,7 +61,17 @@ public class LevelScreen extends ScreenAdapter {
     }
 
     @Override
-    public void show() {}
+    public void show() {
+        inputMultiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                Vector2 position = stage.getViewport().unproject(new Vector2(screenX, screenY));
+                GridPoint2 coordinate = Positions.toCoordinate(position);
+                Gdx.app.log("position", "Unprojected to " + coordinate);
+                return false;
+            }
+        });
+    }
 
     @Override
     public void hide() {}
