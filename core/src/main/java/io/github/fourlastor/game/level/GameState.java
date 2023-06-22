@@ -77,10 +77,17 @@ public class GameState {
     public void placeFromReserve(Player player, int destination) {
         Drawable drawable = player == Player.ONE ? p1Drawable : p2Drawable;
         ownBoard(player).add(player, drawable, destination, stage);
+        maybeCapturePawn(player, destination);
     }
 
     public void moveFromBoard(Player player, int origin, int destination) {
         ownBoard(player).move(origin, destination, player);
+        maybeCapturePawn(player, destination);
+    }
+
+    private void maybeCapturePawn(Player player, int destination) {
+        if (destination > 3 && destination < 12)
+            otherBoard(player).remove(destination);
     }
 
     public
@@ -125,6 +132,14 @@ public class GameState {
         }
 
 
+        public void remove(int destination) {
+            Image pawn = pawns.remove(destination);
+            if (pawn == null) {
+                return;
+            }
+
+            pawn.remove();
+        }
     }
 
 }
