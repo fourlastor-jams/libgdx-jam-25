@@ -1,6 +1,10 @@
 package io.github.fourlastor.game.level;
 
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class Move {
+    private static final List<Integer> ROSETTE_POSITIONS = Arrays.asList(3, 7, 13);
 
     public final Player player;
     public final int destination;
@@ -8,6 +12,14 @@ public abstract class Move {
     Move(Player player, int destination) {
         this.player = player;
         this.destination = destination;
+    }
+
+    public Player next() {
+        if (ROSETTE_POSITIONS.contains(destination)) {
+            return player;
+        } else {
+            return player == Player.ONE ? Player.TWO : Player.ONE;
+        }
     }
 
     public abstract void play(GameState state);

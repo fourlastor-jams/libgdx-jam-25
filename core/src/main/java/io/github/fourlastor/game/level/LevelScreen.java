@@ -77,7 +77,7 @@ public class LevelScreen extends ScreenAdapter {
         move.play(state);
         Gdx.app.debug("Round", "Playing move: " + move);
 
-        scheduleRound(nextPlayer);
+        scheduleRound(move.next());
     }
 
     private Player next(Player player) {
