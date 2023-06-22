@@ -18,6 +18,7 @@ import java.util.Objects;
 
 public class GameState {
 
+    private static final int LAST_POSITION = 13;
     private final Stage stage;
 
     private final Board p1Board = new Board();
@@ -53,7 +54,7 @@ public class GameState {
 
     public boolean placeAvailable(int desiredPosition, Board own, Board other) {
         // overshoot - the pawn would
-        if (desiredPosition >= 14) {
+        if (desiredPosition > LAST_POSITION) {
             return false;
         }
         // check for own pawn already at desired position
@@ -81,8 +82,12 @@ public class GameState {
     }
 
     public void moveFromBoard(Player player, int origin, int destination) {
-        ownBoard(player).move(origin, destination, player);
+        Board ownBoard = ownBoard(player);
+        ownBoard.move(origin, destination, player);
         maybeCapturePawn(player, destination);
+        if (destination == LAST_POSITION) {
+            ownBoard.complete(destination);
+        }
     }
 
     private void maybeCapturePawn(Player player, int destination) {
@@ -95,18 +100,18 @@ public class GameState {
     static class Board {
         final IntMap<Image> pawns = new IntMap<>();
 
+        private int completed = 0;
+
         boolean reserveAvailable() {
-            return pawns.size < 7;
+            return pawns.size + completed < 7;
         }
 
         boolean pawnAtPosition(int desiredPosition) {
             for (IntMap.Entry<Image> entry :  new IntMap.Entries<Image>(pawns)) {
-                Gdx.app.debug("Round", "Checking position: " + entry.key);
                 if (entry.key == desiredPosition) {
                     return true;
                 }
             }
-            Gdx.app.debug("Round", "All good");
             return false;
         }
 
@@ -139,6 +144,11 @@ public class GameState {
             }
 
             pawn.remove();
+        }
+
+        public void complete(int destination) {
+            remove(destination);
+            completed += 1;
         }
     }
 
