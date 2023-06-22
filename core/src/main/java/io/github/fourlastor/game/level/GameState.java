@@ -1,5 +1,6 @@
 package io.github.fourlastor.game.level;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
@@ -35,8 +36,9 @@ public class GameState {
         Board own = ownBoard(player);
         Board other = otherBoard(player);
         LinkedList<Move> moves = new LinkedList<>();
-        if (!own.reserveAvailable() && placeAvailable(rollAmount, own, other)) {
-            moves.add(new Move.PlaceFromReserve(player, rollAmount));
+        int desiredPosition1 = rollAmount - 1;
+        if (own.reserveAvailable() && placeAvailable(desiredPosition1, own, other)) {
+            moves.add(new Move.PlaceFromReserve(player, desiredPosition1));
         }
 
         for (IntMap.Entry<Image> entry : new IntMap.Entries<Image>(own.pawns)) {
@@ -87,21 +89,25 @@ public class GameState {
         final IntMap<Image> pawns = new IntMap<>();
 
         boolean reserveAvailable() {
-            return pawns.size >= 7;
+            return pawns.size < 7;
         }
 
         boolean pawnAtPosition(int desiredPosition) {
             for (IntMap.Entry<Image> entry :  new IntMap.Entries<Image>(pawns)) {
+                Gdx.app.debug("Round", "Checking position: " + entry.key);
                 if (entry.key == desiredPosition) {
-                    return false;
+                    return true;
                 }
             }
+            Gdx.app.debug("Round", "All good");
             return false;
         }
 
         void add(Player player, Drawable drawable, int position, Stage stage) {
             Image pawn = new Image(drawable);
-            pawn.setSize(18, 18);
+            int width = player == Player.ONE ? 18 : 6;
+            int height = player == Player.ONE ? 6 : 18;
+            pawn.setSize(width, height);
             pawns.put(position, pawn);
             adjustPosition(player, pawn, position);
             stage.addActor(pawn);

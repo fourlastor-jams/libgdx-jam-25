@@ -1,6 +1,7 @@
 package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
@@ -45,7 +46,7 @@ public class LevelScreen extends ScreenAdapter {
 
         Player firstPlayer = rng.getRandomElement(Player.values());
 
-        doRound(firstPlayer);
+        scheduleRound(firstPlayer);
 //
 //        for (int i = 0; i < 14; i++) {
 //            addPawnAt(Player.ONE, i);
@@ -53,7 +54,10 @@ public class LevelScreen extends ScreenAdapter {
 //        }
     }
 
+    private Player nextPlayer = Player.ONE;
+
     private void scheduleRound(Player player) {
+        nextPlayer = player;
 //        stage.addAction(Actions.sequence(
 //                Actions.delay(1),
 //                Actions.run(() -> doRound(player))
@@ -69,10 +73,14 @@ public class LevelScreen extends ScreenAdapter {
             rollAmount += rng.nextInt(2);
         }
 
+        Gdx.app.debug("Round", "Player rolled " + rollAmount);
+
+
         Player nextPlayer = next(player);
         if (rollAmount <= 0) {
-            Gdx.app.debug("Round", "Player rolled a zero: " + player);
+            Gdx.app.debug("Round", "Player rolled a zero");
             scheduleRound(nextPlayer);
+            return;
         }
 
         List<Move> moves = state.getAvailableMoves(player, rollAmount);
@@ -80,6 +88,7 @@ public class LevelScreen extends ScreenAdapter {
         if (moves.isEmpty()) {
             Gdx.app.debug("Round", "No available moves: " + player);
             scheduleRound(nextPlayer);
+            return;
         }
 
         Move move = rng.getRandomElement(moves);
@@ -105,6 +114,9 @@ public class LevelScreen extends ScreenAdapter {
         stage.getViewport().apply();
         stage.act();
         stage.draw();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            doRound(nextPlayer);
+        }
     }
 
     @Override
