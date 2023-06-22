@@ -10,12 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.ScreenUtils;
 import squidpony.squidmath.GWTRNG;
 
@@ -27,10 +22,7 @@ public class LevelScreen extends ScreenAdapter {
     private final InputMultiplexer inputMultiplexer;
 
     private final Stage stage;
-    private final Drawable pawn;
     private final GWTRNG rng;
-
-    private final IntMap<Image> pawns = new IntMap<>();
 
     private final GameState state;
 
@@ -42,26 +34,16 @@ public class LevelScreen extends ScreenAdapter {
         this.state = state;
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
-        pawn = new TextureRegionDrawable(atlas.findRegion("whitePixel")).tint(Color.BLACK);
 
         Player firstPlayer = rng.getRandomElement(Player.values());
 
         scheduleRound(firstPlayer);
-//
-//        for (int i = 0; i < 14; i++) {
-//            addPawnAt(Player.ONE, i);
-//            addPawnAt(Player.TWO, i);
-//        }
     }
 
     private Player nextPlayer = Player.ONE;
 
     private void scheduleRound(Player player) {
         nextPlayer = player;
-//        stage.addAction(Actions.sequence(
-//                Actions.delay(1),
-//                Actions.run(() -> doRound(player))
-//        ));
     }
 
 
@@ -121,6 +103,7 @@ public class LevelScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        // TODO: remove this eventually
         inputMultiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
@@ -132,6 +115,4 @@ public class LevelScreen extends ScreenAdapter {
         });
     }
 
-    @Override
-    public void hide() {}
 }
