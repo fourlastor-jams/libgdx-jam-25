@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
@@ -38,16 +37,13 @@ public class LevelScreen extends ScreenAdapter {
             TextureAtlas atlas,
             GWTRNG rng,
             GameState state,
-            AssetManager assetManager
-    ) {
+            AssetManager assetManager) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.rng = rng;
         this.state = state;
         BitmapFont font = assetManager.get("fonts/quan-pixel-32.fnt");
-        buttonStyle = new TextButton.TextButtonStyle(
-                null, null, null, font
-        );
+        buttonStyle = new TextButton.TextButtonStyle(null, null, null, font);
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
 
@@ -174,15 +170,15 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void show() {
         // TODO: remove this eventually
-//        inputMultiplexer.addProcessor(new InputAdapter() {
-//            @Override
-//            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-//                Vector2 position = stage.getViewport().unproject(new Vector2(screenX, screenY));
-//                GridPoint2 coordinate = Positions.toCoordinate(position);
-//                Gdx.app.log("position", "Unprojected to " + coordinate);
-//                return false;
-//            }
-//        });
+        //        inputMultiplexer.addProcessor(new InputAdapter() {
+        //            @Override
+        //            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        //                Vector2 position = stage.getViewport().unproject(new Vector2(screenX, screenY));
+        //                GridPoint2 coordinate = Positions.toCoordinate(position);
+        //                Gdx.app.log("position", "Unprojected to " + coordinate);
+        //                return false;
+        //            }
+        //        });
         inputMultiplexer.addProcessor(stage);
     }
 
