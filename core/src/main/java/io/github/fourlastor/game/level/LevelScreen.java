@@ -47,19 +47,13 @@ public class LevelScreen extends ScreenAdapter {
     }
 
     private void doRound(Player player) {
+        // TODO this can happen either automatically or via player interaction ("roll" button)
         Gdx.app.debug("Round", "Starting round for " + player);
-        // 1. roll 4 1d2 to decide how much movement it is
-        int rollAmount = 0;
-        for (int i = 0; i < 4; i++) {
-            rollAmount += rng.nextInt(2);
-        }
-
+        int rollAmount = rollDice();
         Gdx.app.debug("Round", "Player rolled " + rollAmount);
-
-        Player nextPlayer = next(player);
         if (rollAmount <= 0) {
             Gdx.app.debug("Round", "Player rolled a zero");
-            scheduleRound(nextPlayer);
+            scheduleRound(next(player));
             return;
         }
 
@@ -67,15 +61,25 @@ public class LevelScreen extends ScreenAdapter {
 
         if (moves.isEmpty()) {
             Gdx.app.debug("Round", "No available moves: " + player);
-            scheduleRound(nextPlayer);
+            scheduleRound(next(player));
             return;
         }
 
+        // TODO: here is where human interaction should occur - for now it picks a move randomly
         Move move = rng.getRandomElement(moves);
+        // TODO: this will go in the callback of the human interaction
         move.play(state);
         Gdx.app.debug("Round", "Playing move: " + move);
-
         scheduleRound(move.next());
+    }
+
+    private int rollDice() {
+        // 1. roll 4 1d2 (values 0, 1)
+        int rollAmount = 0;
+        for (int i = 0; i < 4; i++) {
+            rollAmount += rng.nextInt(2);
+        }
+        return rollAmount;
     }
 
     private Player next(Player player) {
@@ -89,7 +93,7 @@ public class LevelScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.TEAL);
+        ScreenUtils.clear(Color.DARK_GRAY, true);
         stage.getViewport().apply();
         stage.act();
         stage.draw();

@@ -14,7 +14,7 @@ public class DesktopLauncher {
         config.setForegroundFPS(60);
         config.setTitle("Ur-derwater");
         setWindowedMode(config);
-        new Lwjgl3Application(GdxGame.createGame(), config);
+        new Lwjgl3Application(GdxGame.createGame(true), config);
     }
 
     private static void setWindowedMode(Lwjgl3ApplicationConfiguration config) {
