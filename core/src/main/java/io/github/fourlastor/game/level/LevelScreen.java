@@ -2,16 +2,21 @@ package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import squidpony.squidmath.GWTRNG;
@@ -24,26 +29,90 @@ public class LevelScreen extends ScreenAdapter {
     private final GWTRNG rng;
 
     private final GameState state;
+    private final TextButton.TextButtonStyle buttonStyle;
 
     @Inject
     public LevelScreen(
-            InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, GameState state) {
+            InputMultiplexer inputMultiplexer,
+            Stage stage,
+            TextureAtlas atlas,
+            GWTRNG rng,
+            GameState state,
+            AssetManager assetManager
+    ) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.rng = rng;
         this.state = state;
+        BitmapFont font = assetManager.get("fonts/quan-pixel-32.fnt");
+        buttonStyle = new TextButton.TextButtonStyle(
+                null, null, null, font
+        );
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
 
         Player firstPlayer = rng.getRandomElement(Player.values());
 
-        scheduleRound(firstPlayer);
+        presentRoll(firstPlayer);
     }
 
     private Player nextPlayer = Player.ONE;
 
     private void scheduleRound(Player player) {
         nextPlayer = player;
+    }
+
+    private void presentRoll(Player player) {
+        Gdx.app.debug("Round", "Starting round for " + player);
+        Button rollButton = new TextButton("Roll", buttonStyle);
+
+        rollButton.setPosition(10, 10);
+        rollButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                pickMove(player, rollDice());
+                rollButton.remove();
+            }
+        });
+        stage.addActor(rollButton);
+    }
+
+    private void pickMove(Player player, int rollAmount) {
+        Gdx.app.debug("Round", "Player rolled " + rollAmount);
+        if (rollAmount <= 0) {
+            Gdx.app.debug("Round", "Player rolled a zero");
+            presentRoll(next(player));
+            return;
+        }
+
+        List<Move> moves = state.getAvailableMoves(player, rollAmount);
+
+        if (moves.isEmpty()) {
+            Gdx.app.debug("Round", "No available moves: " + player);
+            presentRoll(next(player));
+            return;
+        }
+
+        List<TextButton> buttons = new ArrayList<>(moves.size());
+
+        for (int i = 0; i < moves.size(); i++) {
+            Move move = moves.get(i);
+            TextButton moveButton = new TextButton(move.name(), buttonStyle);
+            moveButton.setPosition(10, i * 36 + 10);
+            moveButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    for (TextButton button : buttons) {
+                        button.remove();
+                    }
+                    move.play(state);
+                    Gdx.app.debug("Round", "Playing move: " + move);
+                    presentRoll(move.next());
+                }
+            });
+            buttons.add(moveButton);
+            stage.addActor(moveButton);
+        }
     }
 
     private void doRound(Player player) {
@@ -105,14 +174,20 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void show() {
         // TODO: remove this eventually
-        inputMultiplexer.addProcessor(new InputAdapter() {
-            @Override
-            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                Vector2 position = stage.getViewport().unproject(new Vector2(screenX, screenY));
-                GridPoint2 coordinate = Positions.toCoordinate(position);
-                Gdx.app.log("position", "Unprojected to " + coordinate);
-                return false;
-            }
-        });
+//        inputMultiplexer.addProcessor(new InputAdapter() {
+//            @Override
+//            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+//                Vector2 position = stage.getViewport().unproject(new Vector2(screenX, screenY));
+//                GridPoint2 coordinate = Positions.toCoordinate(position);
+//                Gdx.app.log("position", "Unprojected to " + coordinate);
+//                return false;
+//            }
+//        });
+        inputMultiplexer.addProcessor(stage);
+    }
+
+    @Override
+    public void hide() {
+        inputMultiplexer.removeProcessor(stage);
     }
 }

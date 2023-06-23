@@ -24,6 +24,8 @@ public abstract class Move {
 
     public abstract void play(GameState state);
 
+    public abstract String name();
+
     public static class PlaceFromReserve extends Move {
 
         PlaceFromReserve(Player player, int destination) {
@@ -33,6 +35,11 @@ public abstract class Move {
         @Override
         public void play(GameState state) {
             state.placeFromReserve(player, destination);
+        }
+
+        @Override
+        public String name() {
+            return "Res " + destination;
         }
 
         @Override
@@ -53,6 +60,11 @@ public abstract class Move {
         @Override
         public void play(GameState state) {
             state.moveFromBoard(player, origin, destination);
+        }
+
+        @Override
+        public String name() {
+            return "Mov " + origin + ">" + destination;
         }
 
         @Override
