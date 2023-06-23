@@ -89,7 +89,7 @@ public class LevelScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.TEAL);
+        ScreenUtils.clear(Color.DARK_GRAY, true);
         stage.getViewport().apply();
         stage.act();
         stage.draw();
