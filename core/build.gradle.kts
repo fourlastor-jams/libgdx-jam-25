@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.perceptual)
     implementation(libs.gdx.core)
     implementation(libs.gdx.ai)
+    implementation(libs.squidLib.core)
     implementation(libs.textratypist)
     implementation(libs.dagger.core)
     api(libs.dagger.gwt)
