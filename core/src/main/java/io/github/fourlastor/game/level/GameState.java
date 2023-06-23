@@ -1,6 +1,5 @@
 package io.github.fourlastor.game.level;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -27,8 +26,8 @@ public class GameState {
     @Inject
     public GameState(Stage stage, TextureAtlas atlas) {
         this.stage = stage;
-        p1Drawable = new TextureRegionDrawable(atlas.findRegion("whitePixel")).tint(Color.BLUE);
-        p2Drawable = new TextureRegionDrawable(atlas.findRegion("whitePixel")).tint(Color.YELLOW);
+        p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+        p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
     }
 
     public List<Move> getAvailableMoves(Player player, int rollAmount) {
@@ -113,9 +112,6 @@ public class GameState {
 
         void add(Player player, Drawable drawable, int position, Stage stage) {
             Image pawn = new Image(drawable);
-            int width = player == Player.ONE ? 18 : 6;
-            int height = player == Player.ONE ? 6 : 18;
-            pawn.setSize(width, height);
             pawns.put(position, pawn);
             adjustPosition(player, pawn, position);
             stage.addActor(pawn);
@@ -123,7 +119,7 @@ public class GameState {
 
         private static void adjustPosition(Player player, Image image, int position) {
             Vector2 pawnPosition = Positions.toWorldAtCenter(player, position);
-            image.setPosition(pawnPosition.x, pawnPosition.y, Align.bottom);
+            image.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
         }
 
         void move(int origin, int destination, Player player) {

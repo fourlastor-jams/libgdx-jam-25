@@ -2,6 +2,7 @@ package io.github.fourlastor.game.di.modules;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ShaderProgramLoader;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -28,6 +29,7 @@ public class AssetsModule {
         useDefaultVertexShader.vertexFile = "shaders/default.vs";
         assetManager.load(PATH_WAVE_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
+        assetManager.load("fonts/quan-pixel-32.fnt", BitmapFont.class);
         assetManager.finishLoading();
         return assetManager;
     }
