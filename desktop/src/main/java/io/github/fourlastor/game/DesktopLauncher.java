@@ -12,7 +12,7 @@ public class DesktopLauncher {
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setForegroundFPS(60);
-        config.setTitle("Ur-derwater");
+        config.setTitle("The Royal Game of Ur");
         setWindowedMode(config);
         new Lwjgl3Application(GdxGame.createGame(true), config);
     }
