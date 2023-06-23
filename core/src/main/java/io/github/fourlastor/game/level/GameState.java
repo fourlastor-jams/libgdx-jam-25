@@ -1,6 +1,5 @@
 package io.github.fourlastor.game.level;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
@@ -10,11 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntMap;
-
-import javax.inject.Inject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import javax.inject.Inject;
 
 public class GameState {
 
@@ -71,6 +69,7 @@ public class GameState {
     private Board ownBoard(Player player) {
         return player == Player.ONE ? p1Board : p2Board;
     }
+
     private Board otherBoard(Player player) {
         return player == Player.ONE ? p2Board : p1Board;
     }
@@ -91,13 +90,10 @@ public class GameState {
     }
 
     private void maybeCapturePawn(Player player, int destination) {
-        if (destination > 3 && destination < 12)
-            otherBoard(player).remove(destination);
+        if (destination > 3 && destination < 12) otherBoard(player).remove(destination);
     }
 
-    public
-
-    static class Board {
+    public static class Board {
         final IntMap<Image> pawns = new IntMap<>();
 
         private int completed = 0;
@@ -107,7 +103,7 @@ public class GameState {
         }
 
         boolean pawnAtPosition(int desiredPosition) {
-            for (IntMap.Entry<Image> entry :  new IntMap.Entries<Image>(pawns)) {
+            for (IntMap.Entry<Image> entry : new IntMap.Entries<Image>(pawns)) {
                 if (entry.key == desiredPosition) {
                     return true;
                 }
@@ -136,7 +132,6 @@ public class GameState {
             adjustPosition(player, pawn, destination);
         }
 
-
         public void remove(int destination) {
             Image pawn = pawns.remove(destination);
             if (pawn == null) {
@@ -151,5 +146,4 @@ public class GameState {
             completed += 1;
         }
     }
-
 }

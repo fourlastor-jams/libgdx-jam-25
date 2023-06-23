@@ -23,8 +23,8 @@ public abstract class Move {
     }
 
     public abstract void play(GameState state);
-    public static class PlaceFromReserve extends Move {
 
+    public static class PlaceFromReserve extends Move {
 
         PlaceFromReserve(Player player, int destination) {
             super(player, destination);
@@ -37,17 +37,13 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "PlaceFromReserve{" +
-                    "player=" + player +
-                    ", destination=" + destination +
-                    '}';
+            return "PlaceFromReserve{" + "player=" + player + ", destination=" + destination + '}';
         }
     }
 
     public static class MoveFromBoard extends Move {
 
         public final int origin;
-
 
         MoveFromBoard(Player player, int origin, int destination) {
             super(player, destination);
@@ -61,11 +57,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "MoveFromBoard{" +
-                    "origin=" + origin +
-                    ", player=" + player +
-                    ", destination=" + destination +
-                    '}';
+            return "MoveFromBoard{" + "origin=" + origin + ", player=" + player + ", destination=" + destination + '}';
         }
     }
 }

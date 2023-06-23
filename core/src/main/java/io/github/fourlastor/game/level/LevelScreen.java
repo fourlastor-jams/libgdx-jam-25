@@ -12,10 +12,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.ScreenUtils;
-import squidpony.squidmath.GWTRNG;
-
-import javax.inject.Inject;
 import java.util.List;
+import javax.inject.Inject;
+import squidpony.squidmath.GWTRNG;
 
 public class LevelScreen extends ScreenAdapter {
 
@@ -27,7 +26,8 @@ public class LevelScreen extends ScreenAdapter {
     private final GameState state;
 
     @Inject
-    public LevelScreen(InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, GameState state) {
+    public LevelScreen(
+            InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, GameState state) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.rng = rng;
@@ -46,7 +46,6 @@ public class LevelScreen extends ScreenAdapter {
         nextPlayer = player;
     }
 
-
     private void doRound(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
         // 1. roll 4 1d2 to decide how much movement it is
@@ -56,7 +55,6 @@ public class LevelScreen extends ScreenAdapter {
         }
 
         Gdx.app.debug("Round", "Player rolled " + rollAmount);
-
 
         Player nextPlayer = next(player);
         if (rollAmount <= 0) {
@@ -83,7 +81,6 @@ public class LevelScreen extends ScreenAdapter {
     private Player next(Player player) {
         return player == Player.ONE ? Player.TWO : Player.ONE;
     }
-
 
     @Override
     public void resize(int width, int height) {
@@ -114,5 +111,4 @@ public class LevelScreen extends ScreenAdapter {
             }
         });
     }
-
 }
