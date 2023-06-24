@@ -253,9 +253,7 @@ public class LevelScreen extends ScreenAdapter {
             highlight.setPosition(pawnPosition.x, pawnPosition.y + 2, Align.center);
             highlight.setVisible(false);
             highlight.addAction(
-                    Actions.forever(Actions.sequence(
-                            Actions.moveBy(0, 5, 0.5f),
-                            Actions.moveBy(0, -5, 0.5f))));
+                    Actions.forever(Actions.sequence(Actions.moveBy(0, 5, 0.5f), Actions.moveBy(0, -5, 0.5f))));
             stage.addActor(highlight);
         } else {
             highlight = null;

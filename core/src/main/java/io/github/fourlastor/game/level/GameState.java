@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntMap;
 import io.github.fourlastor.game.ui.Pawn;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,7 +133,7 @@ public class GameState {
                 actions.add(after);
             }
             return Actions.sequence(actions.toArray(new Action[0]));
-//            return adjustPosition(player, pawn, position);
+            //            return adjustPosition(player, pawn, position);
         }
 
         private static Action adjustPosition(Player player, Image image, int position) {
@@ -143,13 +142,8 @@ public class GameState {
         }
 
         private static MoveToAction adjustPosition(Image image, Vector2 pawnPosition) {
-            MoveToAction moveToAction = Actions.moveToAligned(
-                    pawnPosition.x,
-                    pawnPosition.y,
-                    Align.center,
-                    0.25f,
-                    Interpolation.exp5Out
-            );
+            MoveToAction moveToAction =
+                    Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.25f, Interpolation.exp5Out);
             moveToAction.setActor(image);
             return moveToAction;
         }
@@ -174,15 +168,15 @@ public class GameState {
                 pawns.put(destination, pawn);
             }
             return Actions.sequence(actions.toArray(new Action[0]));
-//                // TODO better effect when pawn reaches end
-//                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
-//                scale.setActor(pawn);
-//                return Actions.sequence(
-//                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
-//            } else {
-//                pawns.put(destination, pawn);
-//                return adjustPosition(player, pawn, destination);
-//            }
+            //                // TODO better effect when pawn reaches end
+            //                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+            //                scale.setActor(pawn);
+            //                return Actions.sequence(
+            //                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
+            //            } else {
+            //                pawns.put(destination, pawn);
+            //                return adjustPosition(player, pawn, destination);
+            //            }
         }
 
         public Action remove(int destination) {
