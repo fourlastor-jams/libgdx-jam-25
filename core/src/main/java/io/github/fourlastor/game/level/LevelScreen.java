@@ -150,21 +150,32 @@ public class LevelScreen extends ScreenAdapter {
         Action blinking =
                 Actions.forever(Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         pawn.addAction(blinking);
-        Image highlight = new Image(atlas.findRegion("effects/highlight-" + player.color));
-        Vector2 pawnPosition = Positions.toWorldAtCenter(player, move.destination);
-        highlight.setTouchable(Touchable.disabled);
-        highlight.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
-        highlight.setVisible(false);
-        stage.addActor(highlight);
+        Vector2 pawnPosition = move.destination == GameState.LAST_POSITION
+                ? null
+                : Positions.toWorldAtCenter(player, move.destination);
+        Image highlight;
+        if (pawnPosition != null) {
+            highlight = new Image(atlas.findRegion("effects/highlight-" + player.color));
+            highlight.setTouchable(Touchable.disabled);
+            highlight.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
+            highlight.setVisible(false);
+            stage.addActor(highlight);
+        } else {
+            highlight = null;
+        }
         InputListener hoverListener = new InputListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, @Null Actor fromActor) {
-                highlight.setVisible(true);
+                if (highlight != null) {
+                    highlight.setVisible(true);
+                }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, @Null Actor toActor) {
-                highlight.setVisible(false);
+                if (highlight != null) {
+                    highlight.setVisible(false);
+                }
             }
         };
         pawn.addListener(hoverListener);
@@ -180,7 +191,9 @@ public class LevelScreen extends ScreenAdapter {
             pawn.removeListener(hoverListener);
             pawn.removeAction(blinking);
             pawn.setColor(Color.WHITE);
-            highlight.remove();
+            if (highlight != null) {
+                highlight.remove();
+            }
         };
     }
 
@@ -198,7 +211,7 @@ public class LevelScreen extends ScreenAdapter {
         for (int i = 0; i < 4; i++) {
             rollAmount += rng.nextInt(2);
         }
-        return rollAmount;
+        return 1;
     }
 
     private Player next(Player player) {

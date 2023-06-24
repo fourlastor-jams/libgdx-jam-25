@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ScaleToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntMap;
@@ -14,7 +15,7 @@ import java.util.Objects;
 
 public class GameState {
 
-    private static final int LAST_POSITION = 13;
+    public static final int LAST_POSITION = 14;
     private static final Runnable EMPTY = () -> {};
     private final Board p1Board;
     private final Board p2Board;
@@ -44,9 +45,13 @@ public class GameState {
     }
 
     public boolean placeAvailable(int desiredPosition, Board own, Board other) {
-        // overshoot - the pawn would
+        // overshoot
         if (desiredPosition > LAST_POSITION) {
             return false;
+        }
+        // correct finish
+        if (desiredPosition == LAST_POSITION) {
+            return true;
         }
         // check for own pawn already at desired position
         if (own.isPawnAtPosition(desiredPosition)) {
@@ -82,10 +87,6 @@ public class GameState {
     public Action moveFromBoard(Player player, int origin, int destination) {
         Board ownBoard = ownBoard(player);
         return Actions.parallel(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
-        // TODO!
-        //        if (destination == LAST_POSITION) {
-        //            ownBoard.complete(destination);
-        //        }
     }
 
     private Action maybeCapturePawn(Player player, int destination) {
@@ -138,8 +139,16 @@ public class GameState {
 
         Action move(int origin, int destination, Player player) {
             Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
-            pawns.put(destination, pawn);
-            return adjustPosition(player, pawn, destination);
+            if (destination == LAST_POSITION) {
+                // TODO better effect when pawn reaches end
+                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+                scale.setActor(pawn);
+                return Actions.sequence(
+                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
+            } else {
+                pawns.put(destination, pawn);
+                return adjustPosition(player, pawn, destination);
+            }
         }
 
         public Action remove(int destination) {
