@@ -1,6 +1,9 @@
 package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntMap;
@@ -12,6 +15,7 @@ import java.util.Objects;
 public class GameState {
 
     private static final int LAST_POSITION = 13;
+    private static final Runnable EMPTY = () -> {};
     private final Board p1Board;
     private final Board p2Board;
 
@@ -71,22 +75,25 @@ public class GameState {
         return player == Player.ONE ? p2Board : p1Board;
     }
 
-    public void placeFromReserve(Player player, int destination, Pawn pawn) {
-        ownBoard(player).add(player, destination, pawn);
-        maybeCapturePawn(player, destination);
+    public Action placeFromReserve(Player player, int destination, Pawn pawn) {
+        return Actions.parallel(ownBoard(player).add(player, destination, pawn), maybeCapturePawn(player, destination));
     }
 
-    public void moveFromBoard(Player player, int origin, int destination) {
+    public Action moveFromBoard(Player player, int origin, int destination) {
         Board ownBoard = ownBoard(player);
-        ownBoard.move(origin, destination, player);
-        maybeCapturePawn(player, destination);
-        if (destination == LAST_POSITION) {
-            ownBoard.complete(destination);
-        }
+        return Actions.parallel(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
+        // TODO!
+        //        if (destination == LAST_POSITION) {
+        //            ownBoard.complete(destination);
+        //        }
     }
 
-    private void maybeCapturePawn(Player player, int destination) {
-        if (destination > 3 && destination < 12) otherBoard(player).remove(destination);
+    private Action maybeCapturePawn(Player player, int destination) {
+        if (destination > 3 && destination < 12) {
+            return otherBoard(player).remove(destination);
+        }
+
+        return Actions.run(EMPTY);
     }
 
     public static class Board {
@@ -112,30 +119,36 @@ public class GameState {
             return false;
         }
 
-        void add(Player player, int position, Pawn pawn) {
+        Action add(Player player, int position, Pawn pawn) {
             pawns.put(position, pawn);
             availablePawns.remove(pawn);
-            adjustPosition(player, pawn, position);
+            return adjustPosition(player, pawn, position);
         }
 
-        private static void adjustPosition(Player player, Image image, int position) {
+        private static Action adjustPosition(Player player, Image image, int position) {
             Vector2 pawnPosition = Positions.toWorldAtCenter(player, position);
-            image.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
+            return adjustPosition(image, pawnPosition);
         }
 
-        void move(int origin, int destination, Player player) {
+        private static MoveToAction adjustPosition(Image image, Vector2 pawnPosition) {
+            MoveToAction moveToAction = Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.2f);
+            moveToAction.setActor(image);
+            return moveToAction;
+        }
+
+        Action move(int origin, int destination, Player player) {
             Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
             pawns.put(destination, pawn);
-            adjustPosition(player, pawn, destination);
+            return adjustPosition(player, pawn, destination);
         }
 
-        public void remove(int destination) {
+        public Action remove(int destination) {
             Pawn pawn = pawns.remove(destination);
             if (pawn == null) {
-                return;
+                return Actions.run(EMPTY);
             }
 
-            pawn.resetPosition();
+            return adjustPosition(pawn, pawn.originalPosition);
         }
 
         public void complete(int destination) {

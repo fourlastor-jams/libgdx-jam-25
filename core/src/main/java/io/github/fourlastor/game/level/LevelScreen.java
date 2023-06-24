@@ -186,9 +186,8 @@ public class LevelScreen extends ScreenAdapter {
         for (Runnable cleanup : cleanups) {
             cleanup.run();
         }
-        move.play(state, pawn);
+        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> presentRoll(move.next()))));
         Gdx.app.debug("Round", "Playing move: " + move);
-        presentRoll(move.next());
     }
 
     private int rollDice() {

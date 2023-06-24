@@ -7,15 +7,11 @@ import com.badlogic.gdx.utils.Align;
 
 public class Pawn extends Image {
 
-    private final Vector2 originalPosition;
+    public final Vector2 originalPosition;
 
     public Pawn(Drawable drawable, Vector2 originalPosition) {
         super(drawable);
         this.originalPosition = originalPosition;
-        resetPosition();
-    }
-
-    public void resetPosition() {
         setPosition(originalPosition.x, originalPosition.y, Align.center);
     }
 }
