@@ -11,7 +11,7 @@ uniform float u_time;
 uniform sampler2D u_texture;
 
 float GodRay(float scale,float threshold,float speed,float angle, vec2 uv){
-	float value = pow(sin((uv.x+uv.y*angle+(u_time / 5.0)*speed)*scale*5.0),6.0);
+	float value = pow(sin((uv.x+uv.y*-angle+(u_time / 5.0)*speed)*scale*5.0),6.0);
     value+=float(threshold/15.0<value);
     return clamp(value,0.0,1.0);
 }
