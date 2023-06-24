@@ -78,7 +78,7 @@ public class LevelScreen extends ScreenAdapter {
         p1name = atlas.findRegion("text/p1");
         p2name = atlas.findRegion("text/p2");
         playerName = new Image(p1name);
-        playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 30, Align.center);
+        playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
         stage.addActor(playerName);
 
         Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
@@ -155,7 +155,7 @@ public class LevelScreen extends ScreenAdapter {
                     }
                     rollAmount += rolled;
                 }
-                pickMove(player, 3, dices);
+                pickMove(player, rollAmount, dices);
                 rollButton.remove();
                 rollButton.removeAction(highlight);
                 rollButton.setColor(Color.WHITE);
