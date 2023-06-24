@@ -34,5 +34,5 @@ void main()
     vec3 WaterBot = vec3(0.08,0.12,0.3);
     vec3 WaterColor = WaterBot+uv.y*(WaterTop-WaterBot);
     vec3 Color = WaterColor+light*(LightColor-WaterColor);
-	gl_FragColor = vec4(Color,0.4f + color.r * 0.0001); // adding color.r otherwise the shader compiles out u_texture and fails
+	gl_FragColor = vec4(Color, color.a) * 0.3 + color * 0.7;
 }

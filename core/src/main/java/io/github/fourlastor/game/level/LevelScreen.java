@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -52,6 +53,9 @@ public class LevelScreen extends ScreenAdapter {
     private final Image playerName;
     private final TypingLabel instructions;
     private final DiceTextures textures;
+    private final ShaderProgram underwaterShader;
+
+    private float time = 0f;
 
     @Inject
     public LevelScreen(
@@ -66,6 +70,7 @@ public class LevelScreen extends ScreenAdapter {
         this.atlas = atlas;
         this.rng = rng;
         this.textures = textures;
+        underwaterShader = assetManager.get("shaders/underwater.fs");
         BitmapFont font = assetManager.get("fonts/play-24.fnt");
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
@@ -312,6 +317,8 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(Color.DARK_GRAY, true);
+        time += delta;
+        underwaterShader.setUniformf("u_time", time);
         stage.getViewport().apply();
         stage.act();
         stage.draw();
@@ -319,21 +326,14 @@ public class LevelScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        // TODO: remove this eventually
-        //        inputMultiplexer.addProcessor(new InputAdapter() {
-        //            @Override
-        //            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        //                Vector2 position = stage.getViewport().unproject(new Vector2(screenX, screenY));
-        //                GridPoint2 coordinate = Positions.toCoordinate(position);
-        //                Gdx.app.log("position", "Unprojected to " + coordinate);
-        //                return false;
-        //            }
-        //        });
         inputMultiplexer.addProcessor(stage);
+        stage.getBatch().setShader(underwaterShader);
     }
 
     @Override
     public void hide() {
+        stage.getBatch().setShader(null);
+        time = 0f;
         inputMultiplexer.removeProcessor(stage);
     }
 }
