@@ -19,12 +19,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
+
+import io.github.fourlastor.game.ui.Pawn;
+import io.github.fourlastor.game.ui.YSort;
 import squidpony.squidmath.GWTRNG;
 
 public class LevelScreen extends ScreenAdapter {
@@ -55,6 +62,41 @@ public class LevelScreen extends ScreenAdapter {
         buttonStyle = new TextButton.TextButtonStyle(null, null, null, font);
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
+        YSort ySort = new YSort();
+        stage.addActor(ySort);
+
+
+        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+
+        List<Vector2> p1Pos = Arrays.asList(
+                new Vector2(339, 300-180),
+                new Vector2(351, 300-196),
+                new Vector2(381, 300-177),
+                new Vector2(412, 300-196),
+                new Vector2(433, 300-184),
+                new Vector2(452, 300-200),
+                new Vector2(456, 300-221)
+        );
+        List<Vector2> p2Pos = Arrays.asList(
+                new Vector2(110, 120),
+                new Vector2(112, 90),
+                new Vector2(135, 100),
+                new Vector2(136, 300-228),
+                new Vector2(157, 300-214),
+                new Vector2(165, 300-234),
+                new Vector2(188, 300-224)
+        );
+
+        for (Vector2 pos : p1Pos) {
+            Pawn actor = new Pawn(p1Drawable, pos);
+            ySort.addActor(actor);
+        }
+
+        for (Vector2 pos : p2Pos) {
+            Pawn actor = new Pawn(p2Drawable, pos);
+            ySort.addActor(actor);
+        }
 
         Player firstPlayer = rng.getRandomElement(Player.values());
 
