@@ -156,6 +156,7 @@ public class GameState {
             if (pawn == null) {
                 return Actions.run(EMPTY);
             }
+            availablePawns.add(pawn);
 
             return adjustPosition(pawn, pawn.originalPosition);
         }
