@@ -17,8 +17,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -55,7 +55,12 @@ public class LevelScreen extends ScreenAdapter {
 
     @Inject
     public LevelScreen(
-            InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, AssetManager assetManager, DiceTextures textures) {
+            InputMultiplexer inputMultiplexer,
+            Stage stage,
+            TextureAtlas atlas,
+            GWTRNG rng,
+            AssetManager assetManager,
+            DiceTextures textures) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
@@ -129,14 +134,12 @@ public class LevelScreen extends ScreenAdapter {
         updateInstructions(player, "Roll the dice");
 
         if (player == Player.ONE) {
-            rollButton.setPosition(10, stage.getHeight()- 60);
+            rollButton.setPosition(10, stage.getHeight() - 60);
         } else {
             rollButton.setPosition(stage.getWidth() - 10, stage.getHeight() - 60, Align.right);
         }
-        RepeatAction highlight = Actions.forever(Actions.sequence(
-                Actions.color(Color.BLACK, 0.5f),
-                Actions.color(Color.WHITE, 0.5f)
-        ));
+        RepeatAction highlight =
+                Actions.forever(Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         rollButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -165,17 +168,12 @@ public class LevelScreen extends ScreenAdapter {
     private void pickMove(Player player, int rollAmount, Array<Drawable> dices) {
         Gdx.app.debug("Round", "Player rolled " + rollAmount);
         updateInstructions(player, "Pick a pawn to move " + rollAmount + " spaces");
-        if (rollAmount <= 0) {
-            Gdx.app.debug("Round", "Player rolled a zero");
-            presentRoll(next(player));
-            return;
-        }
 
         Image d0 = new Image(dices.get(0));
         Image d1 = new Image(dices.get(1));
         Image d2 = new Image(dices.get(2));
         Image d3 = new Image(dices.get(3));
-        Image rollText = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1)  + "-num-" + rollAmount));
+        Image rollText = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-num-" + rollAmount));
         int multiplier;
         int sign;
         if (player == Player.ONE) {
@@ -185,6 +183,7 @@ public class LevelScreen extends ScreenAdapter {
             multiplier = 2;
             sign = 1;
         }
+
         d0.setPosition(multiplier * stage.getWidth() / 3 + sign * 150, stage.getHeight() - 80, Align.center);
         d1.setPosition(multiplier * stage.getWidth() / 3 + sign * 110, stage.getHeight() - 80, Align.center);
         rollText.setPosition(multiplier * stage.getWidth() / 3 + sign * 90, stage.getHeight() - 110, Align.center);
@@ -196,20 +195,26 @@ public class LevelScreen extends ScreenAdapter {
         stage.addActor(d3);
         stage.addActor(rollText);
 
-        List<Move> moves = state.getAvailableMoves(player, rollAmount);
-
-        if (moves.isEmpty()) {
-            Gdx.app.debug("Round", "No available moves: " + player);
-            presentRoll(next(player));
-            return;
-        }
-
         List<Runnable> cleanups = new LinkedList<>();
         cleanups.add(d0::remove);
         cleanups.add(d1::remove);
         cleanups.add(d2::remove);
         cleanups.add(d3::remove);
         cleanups.add(rollText::remove);
+
+        if (rollAmount <= 0) {
+            Gdx.app.debug("Round", "Player rolled a zero");
+            stage.addAction(skipRound(player, cleanups));
+            return;
+        }
+
+        List<Move> moves = state.getAvailableMoves(player, rollAmount);
+
+        if (moves.isEmpty()) {
+            Gdx.app.debug("Round", "No available moves: " + player);
+            stage.addAction(skipRound(player, cleanups));
+            return;
+        }
 
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
@@ -223,6 +228,15 @@ public class LevelScreen extends ScreenAdapter {
                 }
             }
         }
+    }
+
+    private SequenceAction skipRound(Player player, List<Runnable> cleanups) {
+        return Actions.sequence(Actions.delay(2), Actions.run(() -> {
+            for (Runnable cleanup : cleanups) {
+                cleanup.run();
+            }
+            presentRoll(next(player));
+        }));
     }
 
     private Runnable highlightPawn(Player player, List<Runnable> cleanups, Move move, Pawn pawn) {

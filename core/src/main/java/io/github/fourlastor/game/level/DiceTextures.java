@@ -1,11 +1,8 @@
 package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.utils.Array;
-import squidpony.squidmath.GWTRNG;
-
 import java.util.List;
-
+import squidpony.squidmath.GWTRNG;
 
 public class DiceTextures {
     private final List<Drawable> dice0;
@@ -22,6 +19,7 @@ public class DiceTextures {
     public Drawable d0() {
         return rng.getRandomElement(dice0);
     }
+
     public Drawable d1() {
         return rng.getRandomElement(dice1);
     }

@@ -12,12 +12,11 @@ import com.badlogic.gdx.utils.Array;
 import dagger.Module;
 import dagger.Provides;
 import io.github.fourlastor.game.level.DiceTextures;
-import squidpony.squidmath.GWTRNG;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import squidpony.squidmath.GWTRNG;
 
 @Module
 public class AssetsModule {
@@ -68,10 +67,6 @@ public class AssetsModule {
         for (int i = 0; i < d0ts.size; i++) {
             d1s.add(new TextureRegionDrawable(d1ts.get(i)));
         }
-        return new DiceTextures(
-                rng,
-                d0s,
-                d1s
-        );
+        return new DiceTextures(rng, d0s, d1s);
     }
 }
