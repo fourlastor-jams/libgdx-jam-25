@@ -1,33 +1,28 @@
 package io.github.fourlastor.game.level;
 
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ScaleToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntMap;
+import io.github.fourlastor.game.ui.Pawn;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import javax.inject.Inject;
 
 public class GameState {
 
-    private static final int LAST_POSITION = 13;
-    private final Stage stage;
+    public static final int LAST_POSITION = 14;
+    private static final Runnable EMPTY = () -> {};
+    private final Board p1Board;
+    private final Board p2Board;
 
-    private final Board p1Board = new Board();
-    private final Board p2Board = new Board();
-    private final Drawable p1Drawable;
-    private final Drawable p2Drawable;
-
-    @Inject
-    public GameState(Stage stage, TextureAtlas atlas) {
-        this.stage = stage;
-        p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
-        p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+    public GameState(List<Pawn> p1Pawns, List<Pawn> p2Pawns) {
+        p1Board = new Board(p1Pawns);
+        p2Board = new Board(p2Pawns);
     }
 
     public List<Move> getAvailableMoves(Player player, int rollAmount) {
@@ -50,9 +45,13 @@ public class GameState {
     }
 
     public boolean placeAvailable(int desiredPosition, Board own, Board other) {
-        // overshoot - the pawn would
+        // overshoot
         if (desiredPosition > LAST_POSITION) {
             return false;
+        }
+        // correct finish
+        if (desiredPosition == LAST_POSITION) {
+            return true;
         }
         // check for own pawn already at desired position
         if (own.isPawnAtPosition(desiredPosition)) {
@@ -65,8 +64,12 @@ public class GameState {
         return true;
     }
 
-    public Image pawnAt(Player player, int position) {
+    public Pawn pawnAt(Player player, int position) {
         return ownBoard(player).pawnAt(position);
+    }
+
+    public List<Pawn> availablePawns(Player player) {
+        return ownBoard(player).availablePawns;
     }
 
     private Board ownBoard(Player player) {
@@ -77,29 +80,32 @@ public class GameState {
         return player == Player.ONE ? p2Board : p1Board;
     }
 
-    public void placeFromReserve(Player player, int destination) {
-        Drawable drawable = player == Player.ONE ? p1Drawable : p2Drawable;
-        ownBoard(player).add(player, drawable, destination, stage);
-        maybeCapturePawn(player, destination);
+    public Action placeFromReserve(Player player, int destination, Pawn pawn) {
+        return Actions.parallel(ownBoard(player).add(player, destination, pawn), maybeCapturePawn(player, destination));
     }
 
-    public void moveFromBoard(Player player, int origin, int destination) {
+    public Action moveFromBoard(Player player, int origin, int destination) {
         Board ownBoard = ownBoard(player);
-        ownBoard.move(origin, destination, player);
-        maybeCapturePawn(player, destination);
-        if (destination == LAST_POSITION) {
-            ownBoard.complete(destination);
-        }
+        return Actions.parallel(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
     }
 
-    private void maybeCapturePawn(Player player, int destination) {
-        if (destination > 3 && destination < 12) otherBoard(player).remove(destination);
+    private Action maybeCapturePawn(Player player, int destination) {
+        if (destination > 3 && destination < 12) {
+            return otherBoard(player).remove(destination);
+        }
+
+        return Actions.run(EMPTY);
     }
 
     public static class Board {
-        final IntMap<Image> pawns = new IntMap<>();
+        final IntMap<Pawn> pawns = new IntMap<>();
+        private final List<Pawn> availablePawns;
 
         private int completed = 0;
+
+        public Board(List<Pawn> pawns) {
+            this.availablePawns = pawns;
+        }
 
         boolean reserveAvailable() {
             return pawns.size + completed < 7;
@@ -114,31 +120,44 @@ public class GameState {
             return false;
         }
 
-        void add(Player player, Drawable drawable, int position, Stage stage) {
-            Image pawn = new Image(drawable);
+        Action add(Player player, int position, Pawn pawn) {
             pawns.put(position, pawn);
-            adjustPosition(player, pawn, position);
-            stage.addActor(pawn);
+            availablePawns.remove(pawn);
+            return adjustPosition(player, pawn, position);
         }
 
-        private static void adjustPosition(Player player, Image image, int position) {
+        private static Action adjustPosition(Player player, Image image, int position) {
             Vector2 pawnPosition = Positions.toWorldAtCenter(player, position);
-            image.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
+            return adjustPosition(image, pawnPosition);
         }
 
-        void move(int origin, int destination, Player player) {
-            Image pawn = Objects.requireNonNull(pawns.remove(origin));
-            pawns.put(destination, pawn);
-            adjustPosition(player, pawn, destination);
+        private static MoveToAction adjustPosition(Image image, Vector2 pawnPosition) {
+            MoveToAction moveToAction = Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.2f);
+            moveToAction.setActor(image);
+            return moveToAction;
         }
 
-        public void remove(int destination) {
-            Image pawn = pawns.remove(destination);
+        Action move(int origin, int destination, Player player) {
+            Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
+            if (destination == LAST_POSITION) {
+                // TODO better effect when pawn reaches end
+                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+                scale.setActor(pawn);
+                return Actions.sequence(
+                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
+            } else {
+                pawns.put(destination, pawn);
+                return adjustPosition(player, pawn, destination);
+            }
+        }
+
+        public Action remove(int destination) {
+            Pawn pawn = pawns.remove(destination);
             if (pawn == null) {
-                return;
+                return Actions.run(EMPTY);
             }
 
-            pawn.remove();
+            return adjustPosition(pawn, pawn.originalPosition);
         }
 
         public void complete(int destination) {
@@ -146,7 +165,7 @@ public class GameState {
             completed += 1;
         }
 
-        public Image pawnAt(int position) {
+        public Pawn pawnAt(int position) {
             return pawns.get(position);
         }
     }
