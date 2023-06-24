@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -46,6 +47,10 @@ public class LevelScreen extends ScreenAdapter {
 
     private final GameState state;
     private final TextButton.TextButtonStyle buttonStyle;
+
+    private final TextureRegion p1name;
+    private final TextureRegion p2name;
+    private final Image playerName;
     private final TypingLabel instructions;
     private final DiceTextures textures;
 
@@ -66,6 +71,11 @@ public class LevelScreen extends ScreenAdapter {
         instructions = new TypingLabel("", new Font(font));
         instructions.setPosition(10, 245);
         stage.addActor(instructions);
+        p1name = atlas.findRegion("text/p1");
+        p2name = atlas.findRegion("text/p2");
+        playerName = new Image(p1name);
+        playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 30, Align.center);
+        stage.addActor(playerName);
 
         Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
         Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
@@ -116,6 +126,7 @@ public class LevelScreen extends ScreenAdapter {
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
         Button rollButton = new TextButton("Roll", buttonStyle);
+        playerName.setDrawable(new TextureRegionDrawable(player == Player.ONE ? p1name : p2name));
         updateInstructions(player, "Roll the dice");
 
         rollButton.setPosition(10, 10);
