@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.tommyettinger.textra.Font;
@@ -46,14 +47,16 @@ public class LevelScreen extends ScreenAdapter {
     private final GameState state;
     private final TextButton.TextButtonStyle buttonStyle;
     private final TypingLabel instructions;
+    private final DiceTextures textures;
 
     @Inject
     public LevelScreen(
-            InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, AssetManager assetManager) {
+            InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, AssetManager assetManager, DiceTextures textures) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
         this.rng = rng;
+        this.textures = textures;
         BitmapFont font = assetManager.get("fonts/play-24.fnt");
         buttonStyle = new TextButton.TextButtonStyle(null, null, null, font);
         Image image = new Image(atlas.findRegion("main_art"));
@@ -105,6 +108,11 @@ public class LevelScreen extends ScreenAdapter {
         presentRoll(firstPlayer);
     }
 
+    private void updateInstructions(Player player, String instruction) {
+        instructions.setText("Player " + player + ":\n[%25]" + instruction);
+        instructions.restart();
+    }
+
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
         Button rollButton = new TextButton("Roll", buttonStyle);
@@ -114,19 +122,26 @@ public class LevelScreen extends ScreenAdapter {
         rollButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                pickMove(player, rollDice());
+                // 1. roll 4 1d2 (values 0, 1)
+                int rollAmount = 0;
+                Array<Drawable> dices = new Array<>();
+                for (int i = 0; i < 4; i++) {
+                    int rolled = rng.nextInt(2);
+                    if (rolled == 0) {
+                        dices.add(textures.d0());
+                    } else {
+                        dices.add(textures.d1());
+                    }
+                    rollAmount += rolled;
+                }
+                pickMove(player, rollAmount, dices);
                 rollButton.remove();
             }
         });
         stage.addActor(rollButton);
     }
 
-    private void updateInstructions(Player player, String instruction) {
-        instructions.setText("Player " + player + ":\n[%25]" + instruction);
-        instructions.restart();
-    }
-
-    private void pickMove(Player player, int rollAmount) {
+    private void pickMove(Player player, int rollAmount, Array<Drawable> dices) {
         Gdx.app.debug("Round", "Player rolled " + rollAmount);
         updateInstructions(player, "Pick a pawn to move " + rollAmount + " spaces");
         if (rollAmount <= 0) {
@@ -134,6 +149,19 @@ public class LevelScreen extends ScreenAdapter {
             presentRoll(next(player));
             return;
         }
+
+        Image d0 = new Image(dices.get(0));
+        d0.setPosition(10, 15);
+        Image d1 = new Image(dices.get(1));
+        d1.setPosition(10, 55);
+        Image d2 = new Image(dices.get(2));
+        d2.setPosition(50, 15);
+        Image d3 = new Image(dices.get(3));
+        d3.setPosition(50, 55);
+        stage.addActor(d0);
+        stage.addActor(d1);
+        stage.addActor(d2);
+        stage.addActor(d3);
 
         List<Move> moves = state.getAvailableMoves(player, rollAmount);
 
@@ -144,6 +172,10 @@ public class LevelScreen extends ScreenAdapter {
         }
 
         List<Runnable> cleanups = new LinkedList<>();
+        cleanups.add(d0::remove);
+        cleanups.add(d1::remove);
+        cleanups.add(d2::remove);
+        cleanups.add(d3::remove);
 
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
@@ -216,15 +248,6 @@ public class LevelScreen extends ScreenAdapter {
         }
         stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> presentRoll(move.next()))));
         Gdx.app.debug("Round", "Playing move: " + move);
-    }
-
-    private int rollDice() {
-        // 1. roll 4 1d2 (values 0, 1)
-        int rollAmount = 0;
-        for (int i = 0; i < 4; i++) {
-            rollAmount += rng.nextInt(2);
-        }
-        return rollAmount;
     }
 
     private Player next(Player player) {
