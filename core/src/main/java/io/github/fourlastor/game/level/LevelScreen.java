@@ -8,8 +8,11 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -89,26 +92,47 @@ public class LevelScreen extends ScreenAdapter {
             return;
         }
 
-        List<TextButton> buttons = new ArrayList<>(moves.size());
+        List<Actor> buttons = new ArrayList<>(moves.size());
 
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
-            TextButton moveButton = new TextButton(move.name(), buttonStyle);
-            moveButton.setPosition(10, i * 36 + 10);
-            moveButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    for (TextButton button : buttons) {
-                        button.remove();
+            if (move instanceof Move.MoveFromBoard) {
+                Move.MoveFromBoard moveFromBoard = (Move.MoveFromBoard) move;
+                Image pawn = state.pawnAt(player, moveFromBoard.origin);
+                Action highlight = Actions.forever(
+                        Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
+                pawn.addAction(highlight);
+                pawn.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        onMovePicked(buttons, move);
+                        pawn.removeListener(this);
+                        pawn.removeAction(highlight);
+                        pawn.setColor(Color.WHITE);
                     }
-                    move.play(state);
-                    Gdx.app.debug("Round", "Playing move: " + move);
-                    presentRoll(move.next());
-                }
-            });
-            buttons.add(moveButton);
-            stage.addActor(moveButton);
+                });
+            } else {
+                TextButton moveButton = new TextButton(move.name(), buttonStyle);
+                moveButton.setPosition(10, i * 36 + 10);
+                moveButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        onMovePicked(buttons, move);
+                    }
+                });
+                buttons.add(moveButton);
+                stage.addActor(moveButton);
+            }
         }
+    }
+
+    private void onMovePicked(List<Actor> buttons, Move move) {
+        for (Actor button : buttons) {
+            button.remove();
+        }
+        move.play(state);
+        Gdx.app.debug("Round", "Playing move: " + move);
+        presentRoll(move.next());
     }
 
     private void doRound(Player player) {
