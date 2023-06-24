@@ -26,8 +26,8 @@ public class GameState {
     @Inject
     public GameState(Stage stage, TextureAtlas atlas) {
         this.stage = stage;
-        p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
-        p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
     }
 
     public List<Move> getAvailableMoves(Player player, int rollAmount) {
