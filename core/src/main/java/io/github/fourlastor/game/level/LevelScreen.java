@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,15 +16,18 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.github.tommyettinger.textra.Font;
+import com.github.tommyettinger.textra.TypingLabel;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
 import java.util.ArrayList;
@@ -42,34 +46,45 @@ public class LevelScreen extends ScreenAdapter {
     private final GWTRNG rng;
 
     private final GameState state;
-    private final TextButton.TextButtonStyle buttonStyle;
+
+    private final TextureRegion p1name;
+    private final TextureRegion p2name;
+    private final Image playerName;
+    private final TypingLabel instructions;
+    private final DiceTextures textures;
 
     @Inject
     public LevelScreen(
-            InputMultiplexer inputMultiplexer, Stage stage, TextureAtlas atlas, GWTRNG rng, AssetManager assetManager) {
+            InputMultiplexer inputMultiplexer,
+            Stage stage,
+            TextureAtlas atlas,
+            GWTRNG rng,
+            AssetManager assetManager,
+            DiceTextures textures) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
         this.rng = rng;
-        BitmapFont font = assetManager.get("fonts/quan-pixel-32.fnt");
-        buttonStyle = new TextButton.TextButtonStyle(null, null, null, font);
+        this.textures = textures;
+        BitmapFont font = assetManager.get("fonts/play-24.fnt");
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
         YSort ySort = new YSort();
         stage.addActor(ySort);
+        instructions = new TypingLabel("", new Font(font));
+        instructions.setPosition(10, 245);
+        instructions.setVisible(false);
+        stage.addActor(instructions);
+        p1name = atlas.findRegion("text/p1");
+        p2name = atlas.findRegion("text/p2");
+        playerName = new Image(p1name);
+        playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
+        stage.addActor(playerName);
 
-        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
-        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
 
         List<Vector2> p1Pos = Arrays.asList(
-                new Vector2(339, 300 - 180),
-                new Vector2(351, 300 - 196),
-                new Vector2(381, 300 - 177),
-                new Vector2(412, 300 - 196),
-                new Vector2(433, 300 - 184),
-                new Vector2(452, 300 - 200),
-                new Vector2(456, 300 - 221));
-        List<Vector2> p2Pos = Arrays.asList(
                 new Vector2(110, 120),
                 new Vector2(112, 90),
                 new Vector2(135, 100),
@@ -77,6 +92,14 @@ public class LevelScreen extends ScreenAdapter {
                 new Vector2(157, 300 - 214),
                 new Vector2(165, 300 - 234),
                 new Vector2(188, 300 - 224));
+        List<Vector2> p2Pos = Arrays.asList(
+                new Vector2(339, 300 - 180),
+                new Vector2(351, 300 - 196),
+                new Vector2(381, 300 - 177),
+                new Vector2(412, 300 - 196),
+                new Vector2(433, 300 - 184),
+                new Vector2(452, 300 - 200),
+                new Vector2(456, 300 - 221));
 
         List<Pawn> p1Pawns = new ArrayList<>(7);
         List<Pawn> p2Pawns = new ArrayList<>(7);
@@ -99,26 +122,89 @@ public class LevelScreen extends ScreenAdapter {
         presentRoll(firstPlayer);
     }
 
+    private void updateInstructions(Player player, String instruction) {
+        instructions.setText("Player " + player + ":\n[%25]" + instruction);
+        instructions.restart();
+    }
+
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
-        Button rollButton = new TextButton("Roll", buttonStyle);
+        Image rollButton = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-throw-dice"));
+        playerName.setDrawable(new TextureRegionDrawable(player == Player.ONE ? p1name : p2name));
+        updateInstructions(player, "Roll the dice");
 
-        rollButton.setPosition(10, 10);
+        if (player == Player.ONE) {
+            rollButton.setPosition(10, stage.getHeight() - 60);
+        } else {
+            rollButton.setPosition(stage.getWidth() - 10, stage.getHeight() - 60, Align.right);
+        }
+        RepeatAction highlight =
+                Actions.forever(Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         rollButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                pickMove(player, rollDice());
+                // 1. roll 4 1d2 (values 0, 1)
+                int rollAmount = 0;
+                Array<Drawable> dices = new Array<>();
+                for (int i = 0; i < 4; i++) {
+                    int rolled = rng.nextInt(2);
+                    if (rolled == 0) {
+                        dices.add(textures.d0());
+                    } else {
+                        dices.add(textures.d1());
+                    }
+                    rollAmount += rolled;
+                }
+                pickMove(player, rollAmount, dices);
                 rollButton.remove();
+                rollButton.removeAction(highlight);
+                rollButton.setColor(Color.WHITE);
             }
         });
+        rollButton.addAction(highlight);
         stage.addActor(rollButton);
     }
 
-    private void pickMove(Player player, int rollAmount) {
+    private void pickMove(Player player, int rollAmount, Array<Drawable> dices) {
         Gdx.app.debug("Round", "Player rolled " + rollAmount);
+        updateInstructions(player, "Pick a pawn to move " + rollAmount + " spaces");
+
+        Image d0 = new Image(dices.get(0));
+        Image d1 = new Image(dices.get(1));
+        Image d2 = new Image(dices.get(2));
+        Image d3 = new Image(dices.get(3));
+        Image rollText = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-num-" + rollAmount));
+        int multiplier;
+        int sign;
+        if (player == Player.ONE) {
+            multiplier = 1;
+            sign = -1;
+        } else {
+            multiplier = 2;
+            sign = 1;
+        }
+
+        d0.setPosition(multiplier * stage.getWidth() / 3 + sign * 150, stage.getHeight() - 80, Align.center);
+        d1.setPosition(multiplier * stage.getWidth() / 3 + sign * 110, stage.getHeight() - 80, Align.center);
+        rollText.setPosition(multiplier * stage.getWidth() / 3 + sign * 90, stage.getHeight() - 110, Align.center);
+        d2.setPosition(multiplier * stage.getWidth() / 3 + sign * 70, stage.getHeight() - 80, Align.center);
+        d3.setPosition(multiplier * stage.getWidth() / 3 + sign * 30, stage.getHeight() - 80, Align.center);
+        stage.addActor(d0);
+        stage.addActor(d1);
+        stage.addActor(d2);
+        stage.addActor(d3);
+        stage.addActor(rollText);
+
+        List<Runnable> cleanups = new LinkedList<>();
+        cleanups.add(d0::remove);
+        cleanups.add(d1::remove);
+        cleanups.add(d2::remove);
+        cleanups.add(d3::remove);
+        cleanups.add(rollText::remove);
+
         if (rollAmount <= 0) {
             Gdx.app.debug("Round", "Player rolled a zero");
-            presentRoll(next(player));
+            stage.addAction(skipRound(player, cleanups));
             return;
         }
 
@@ -126,11 +212,9 @@ public class LevelScreen extends ScreenAdapter {
 
         if (moves.isEmpty()) {
             Gdx.app.debug("Round", "No available moves: " + player);
-            presentRoll(next(player));
+            stage.addAction(skipRound(player, cleanups));
             return;
         }
-
-        List<Runnable> cleanups = new LinkedList<>();
 
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
@@ -146,6 +230,15 @@ public class LevelScreen extends ScreenAdapter {
         }
     }
 
+    private SequenceAction skipRound(Player player, List<Runnable> cleanups) {
+        return Actions.sequence(Actions.delay(2), Actions.run(() -> {
+            for (Runnable cleanup : cleanups) {
+                cleanup.run();
+            }
+            presentRoll(next(player));
+        }));
+    }
+
     private Runnable highlightPawn(Player player, List<Runnable> cleanups, Move move, Pawn pawn) {
         Action blinking =
                 Actions.forever(Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
@@ -157,8 +250,10 @@ public class LevelScreen extends ScreenAdapter {
         if (pawnPosition != null) {
             highlight = new Image(atlas.findRegion("effects/highlight-" + player.color));
             highlight.setTouchable(Touchable.disabled);
-            highlight.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
+            highlight.setPosition(pawnPosition.x, pawnPosition.y + 2, Align.center);
             highlight.setVisible(false);
+            highlight.addAction(
+                    Actions.forever(Actions.sequence(Actions.moveBy(0, 5, 0.5f), Actions.moveBy(0, -5, 0.5f))));
             stage.addActor(highlight);
         } else {
             highlight = null;
@@ -203,15 +298,6 @@ public class LevelScreen extends ScreenAdapter {
         }
         stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> presentRoll(move.next()))));
         Gdx.app.debug("Round", "Playing move: " + move);
-    }
-
-    private int rollDice() {
-        // 1. roll 4 1d2 (values 0, 1)
-        int rollAmount = 0;
-        for (int i = 0; i < 4; i++) {
-            rollAmount += rng.nextInt(2);
-        }
-        return rollAmount;
     }
 
     private Player next(Player player) {
