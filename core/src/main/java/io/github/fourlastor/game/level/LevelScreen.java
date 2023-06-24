@@ -64,18 +64,10 @@ public class LevelScreen extends ScreenAdapter {
         instructions.setPosition(10, 245);
         stage.addActor(instructions);
 
-        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
-        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
+        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
 
         List<Vector2> p1Pos = Arrays.asList(
-                new Vector2(339, 300 - 180),
-                new Vector2(351, 300 - 196),
-                new Vector2(381, 300 - 177),
-                new Vector2(412, 300 - 196),
-                new Vector2(433, 300 - 184),
-                new Vector2(452, 300 - 200),
-                new Vector2(456, 300 - 221));
-        List<Vector2> p2Pos = Arrays.asList(
                 new Vector2(110, 120),
                 new Vector2(112, 90),
                 new Vector2(135, 100),
@@ -83,6 +75,14 @@ public class LevelScreen extends ScreenAdapter {
                 new Vector2(157, 300 - 214),
                 new Vector2(165, 300 - 234),
                 new Vector2(188, 300 - 224));
+        List<Vector2> p2Pos = Arrays.asList(
+                new Vector2(339, 300 - 180),
+                new Vector2(351, 300 - 196),
+                new Vector2(381, 300 - 177),
+                new Vector2(412, 300 - 196),
+                new Vector2(433, 300 - 184),
+                new Vector2(452, 300 - 200),
+                new Vector2(456, 300 - 221));
 
         List<Pawn> p1Pawns = new ArrayList<>(7);
         List<Pawn> p2Pawns = new ArrayList<>(7);
