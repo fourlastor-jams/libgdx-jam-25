@@ -29,7 +29,7 @@ public class AssetsModule {
         useDefaultVertexShader.vertexFile = "shaders/default.vs";
         assetManager.load(PATH_WAVE_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
-        assetManager.load("fonts/quan-pixel-32.fnt", BitmapFont.class);
+        assetManager.load("fonts/play-24.fnt", BitmapFont.class);
         assetManager.finishLoading();
         return assetManager;
     }

@@ -24,6 +24,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.github.tommyettinger.textra.Font;
+import com.github.tommyettinger.textra.TypingLabel;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ public class LevelScreen extends ScreenAdapter {
 
     private final GameState state;
     private final TextButton.TextButtonStyle buttonStyle;
+    private final TypingLabel instructions;
 
     @Inject
     public LevelScreen(
@@ -51,12 +54,15 @@ public class LevelScreen extends ScreenAdapter {
         this.stage = stage;
         this.atlas = atlas;
         this.rng = rng;
-        BitmapFont font = assetManager.get("fonts/quan-pixel-32.fnt");
+        BitmapFont font = assetManager.get("fonts/play-24.fnt");
         buttonStyle = new TextButton.TextButtonStyle(null, null, null, font);
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
         YSort ySort = new YSort();
         stage.addActor(ySort);
+        instructions = new TypingLabel("", new Font(font));
+        instructions.setPosition(10, 245);
+        stage.addActor(instructions);
 
         Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
         Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
@@ -102,6 +108,7 @@ public class LevelScreen extends ScreenAdapter {
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
         Button rollButton = new TextButton("Roll", buttonStyle);
+        updateInstructions(player, "Roll the dice");
 
         rollButton.setPosition(10, 10);
         rollButton.addListener(new ClickListener() {
@@ -114,8 +121,14 @@ public class LevelScreen extends ScreenAdapter {
         stage.addActor(rollButton);
     }
 
+    private void updateInstructions(Player player, String instruction) {
+        instructions.setText("Player " + player + ":\n[%25]" + instruction);
+        instructions.restart();
+    }
+
     private void pickMove(Player player, int rollAmount) {
         Gdx.app.debug("Round", "Player rolled " + rollAmount);
+        updateInstructions(player, "Pick a pawn to move " + rollAmount + " spaces");
         if (rollAmount <= 0) {
             Gdx.app.debug("Round", "Player rolled a zero");
             presentRoll(next(player));
