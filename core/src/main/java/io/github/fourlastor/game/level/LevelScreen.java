@@ -211,7 +211,7 @@ public class LevelScreen extends ScreenAdapter {
         for (int i = 0; i < 4; i++) {
             rollAmount += rng.nextInt(2);
         }
-        return 1;
+        return rollAmount;
     }
 
     private Player next(Player player) {
