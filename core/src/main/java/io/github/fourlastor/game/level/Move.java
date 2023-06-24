@@ -1,5 +1,6 @@
 package io.github.fourlastor.game.level;
 
+import io.github.fourlastor.game.ui.Pawn;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public abstract class Move {
         }
     }
 
-    public abstract void play(GameState state);
+    public abstract void play(GameState state, Pawn pawn);
 
     public abstract String name();
 
@@ -33,8 +34,8 @@ public abstract class Move {
         }
 
         @Override
-        public void play(GameState state) {
-            state.placeFromReserve(player, destination);
+        public void play(GameState state, Pawn pawn) {
+            state.placeFromReserve(player, destination, pawn);
         }
 
         @Override
@@ -58,7 +59,7 @@ public abstract class Move {
         }
 
         @Override
-        public void play(GameState state) {
+        public void play(GameState state, Pawn pawn) {
             state.moveFromBoard(player, origin, destination);
         }
 

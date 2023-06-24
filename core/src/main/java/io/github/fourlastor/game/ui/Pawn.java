@@ -11,7 +11,11 @@ public class Pawn extends Image {
 
     public Pawn(Drawable drawable, Vector2 originalPosition) {
         super(drawable);
-        setPosition(originalPosition.x, originalPosition.y, Align.center);
         this.originalPosition = originalPosition;
+        resetPosition();
+    }
+
+    public void resetPosition() {
+        setPosition(originalPosition.x, originalPosition.y, Align.center);
     }
 }
