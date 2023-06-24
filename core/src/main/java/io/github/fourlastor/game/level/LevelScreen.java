@@ -46,7 +46,6 @@ public class LevelScreen extends ScreenAdapter {
     private final GWTRNG rng;
 
     private final GameState state;
-    private final TextButton.TextButtonStyle buttonStyle;
 
     private final TextureRegion p1name;
     private final TextureRegion p2name;
@@ -63,7 +62,6 @@ public class LevelScreen extends ScreenAdapter {
         this.rng = rng;
         this.textures = textures;
         BitmapFont font = assetManager.get("fonts/play-24.fnt");
-        buttonStyle = new TextButton.TextButtonStyle(null, null, null, font);
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
         YSort ySort = new YSort();
@@ -177,6 +175,7 @@ public class LevelScreen extends ScreenAdapter {
         Image d1 = new Image(dices.get(1));
         Image d2 = new Image(dices.get(2));
         Image d3 = new Image(dices.get(3));
+        Image rollText = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1)  + "-num-" + rollAmount));
         int multiplier;
         int sign;
         if (player == Player.ONE) {
@@ -188,12 +187,14 @@ public class LevelScreen extends ScreenAdapter {
         }
         d0.setPosition(multiplier * stage.getWidth() / 3 + sign * 150, stage.getHeight() - 80, Align.center);
         d1.setPosition(multiplier * stage.getWidth() / 3 + sign * 110, stage.getHeight() - 80, Align.center);
+        rollText.setPosition(multiplier * stage.getWidth() / 3 + sign * 90, stage.getHeight() - 110, Align.center);
         d2.setPosition(multiplier * stage.getWidth() / 3 + sign * 70, stage.getHeight() - 80, Align.center);
         d3.setPosition(multiplier * stage.getWidth() / 3 + sign * 30, stage.getHeight() - 80, Align.center);
         stage.addActor(d0);
         stage.addActor(d1);
         stage.addActor(d2);
         stage.addActor(d3);
+        stage.addActor(rollText);
 
         List<Move> moves = state.getAvailableMoves(player, rollAmount);
 
@@ -208,6 +209,7 @@ public class LevelScreen extends ScreenAdapter {
         cleanups.add(d1::remove);
         cleanups.add(d2::remove);
         cleanups.add(d3::remove);
+        cleanups.add(rollText::remove);
 
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
