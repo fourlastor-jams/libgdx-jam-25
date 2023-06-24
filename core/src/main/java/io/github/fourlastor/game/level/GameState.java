@@ -26,8 +26,8 @@ public class GameState {
     @Inject
     public GameState(Stage stage, TextureAtlas atlas) {
         this.stage = stage;
-        p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
-        p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
     }
 
     public List<Move> getAvailableMoves(Player player, int rollAmount) {
@@ -55,14 +55,18 @@ public class GameState {
             return false;
         }
         // check for own pawn already at desired position
-        if (own.pawnAtPosition(desiredPosition)) {
+        if (own.isPawnAtPosition(desiredPosition)) {
             return false;
         }
         // shared board on rosette, check also the opponent
-        if (desiredPosition == 7 && other.pawnAtPosition(desiredPosition)) {
+        if (desiredPosition == 7 && other.isPawnAtPosition(desiredPosition)) {
             return false;
         }
         return true;
+    }
+
+    public Image pawnAt(Player player, int position) {
+        return ownBoard(player).pawnAt(position);
     }
 
     private Board ownBoard(Player player) {
@@ -101,7 +105,7 @@ public class GameState {
             return pawns.size + completed < 7;
         }
 
-        boolean pawnAtPosition(int desiredPosition) {
+        boolean isPawnAtPosition(int desiredPosition) {
             for (IntMap.Entry<Image> entry : new IntMap.Entries<Image>(pawns)) {
                 if (entry.key == desiredPosition) {
                     return true;
@@ -140,6 +144,10 @@ public class GameState {
         public void complete(int destination) {
             remove(destination);
             completed += 1;
+        }
+
+        public Image pawnAt(int position) {
+            return pawns.get(position);
         }
     }
 }

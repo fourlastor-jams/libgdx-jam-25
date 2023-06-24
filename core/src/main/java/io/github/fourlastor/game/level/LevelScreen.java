@@ -8,14 +8,21 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
 import squidpony.squidmath.GWTRNG;
@@ -25,6 +32,7 @@ public class LevelScreen extends ScreenAdapter {
     private final InputMultiplexer inputMultiplexer;
 
     private final Stage stage;
+    private final TextureAtlas atlas;
     private final GWTRNG rng;
 
     private final GameState state;
@@ -40,6 +48,7 @@ public class LevelScreen extends ScreenAdapter {
             AssetManager assetManager) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
+        this.atlas = atlas;
         this.rng = rng;
         this.state = state;
         BitmapFont font = assetManager.get("fonts/quan-pixel-32.fnt");
@@ -89,26 +98,69 @@ public class LevelScreen extends ScreenAdapter {
             return;
         }
 
-        List<TextButton> buttons = new ArrayList<>(moves.size());
+        List<Runnable> cleanups = new LinkedList<>();
 
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves.get(i);
-            TextButton moveButton = new TextButton(move.name(), buttonStyle);
-            moveButton.setPosition(10, i * 36 + 10);
-            moveButton.addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    for (TextButton button : buttons) {
-                        button.remove();
+            if (move instanceof Move.MoveFromBoard) {
+                Move.MoveFromBoard moveFromBoard = (Move.MoveFromBoard) move;
+                Image pawn = state.pawnAt(player, moveFromBoard.origin);
+                Action blinking = Actions.forever(
+                        Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
+                pawn.addAction(blinking);
+                Image highlight = new Image(atlas.findRegion("effects/highlight-" + player.color));
+                Vector2 pawnPosition = Positions.toWorldAtCenter(player, moveFromBoard.destination);
+                highlight.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
+                highlight.setVisible(false);
+                stage.addActor(highlight);
+                InputListener hoverListener = new InputListener() {
+                    @Override
+                    public void enter(InputEvent event, float x, float y, int pointer, @Null Actor fromActor) {
+                        highlight.setVisible(true);
                     }
-                    move.play(state);
-                    Gdx.app.debug("Round", "Playing move: " + move);
-                    presentRoll(move.next());
-                }
-            });
-            buttons.add(moveButton);
-            stage.addActor(moveButton);
+
+                    @Override
+                    public void exit(InputEvent event, float x, float y, int pointer, @Null Actor toActor) {
+                        highlight.setVisible(false);
+                    }
+                };
+                pawn.addListener(hoverListener);
+                ClickListener clickListener = new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        onMovePicked(cleanups, move);
+                    }
+                };
+                pawn.addListener(clickListener);
+                cleanups.add(() -> {
+                    pawn.removeListener(clickListener);
+                    pawn.removeListener(hoverListener);
+                    pawn.removeAction(blinking);
+                    pawn.setColor(Color.WHITE);
+                    highlight.remove();
+                });
+            } else {
+                TextButton moveButton = new TextButton(move.name(), buttonStyle);
+                moveButton.setPosition(10, i * 36 + 10);
+                moveButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        onMovePicked(cleanups, move);
+                    }
+                });
+                stage.addActor(moveButton);
+                cleanups.add(moveButton::remove);
+            }
         }
+    }
+
+    private void onMovePicked(List<Runnable> cleanups, Move move) {
+        for (Runnable cleanup : cleanups) {
+            cleanup.run();
+        }
+        move.play(state);
+        Gdx.app.debug("Round", "Playing move: " + move);
+        presentRoll(move.next());
     }
 
     private void doRound(Player player) {
