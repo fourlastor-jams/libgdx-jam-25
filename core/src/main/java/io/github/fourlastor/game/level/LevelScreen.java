@@ -250,8 +250,12 @@ public class LevelScreen extends ScreenAdapter {
         if (pawnPosition != null) {
             highlight = new Image(atlas.findRegion("effects/highlight-" + player.color));
             highlight.setTouchable(Touchable.disabled);
-            highlight.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
+            highlight.setPosition(pawnPosition.x, pawnPosition.y + 2, Align.center);
             highlight.setVisible(false);
+            highlight.addAction(
+                    Actions.forever(Actions.sequence(
+                            Actions.moveBy(0, 5, 0.5f),
+                            Actions.moveBy(0, -5, 0.5f))));
             stage.addActor(highlight);
         } else {
             highlight = null;
