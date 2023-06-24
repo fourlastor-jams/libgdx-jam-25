@@ -1,14 +1,18 @@
 package io.github.fourlastor.game.level;
 
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.AfterAction;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.ScaleToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.IntMap;
 import io.github.fourlastor.game.ui.Pawn;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -86,7 +90,7 @@ public class GameState {
 
     public Action moveFromBoard(Player player, int origin, int destination) {
         Board ownBoard = ownBoard(player);
-        return Actions.parallel(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
+        return Actions.sequence(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
     }
 
     private Action maybeCapturePawn(Player player, int destination) {
@@ -123,7 +127,14 @@ public class GameState {
         Action add(Player player, int position, Pawn pawn) {
             pawns.put(position, pawn);
             availablePawns.remove(pawn);
-            return adjustPosition(player, pawn, position);
+            List<Action> actions = new ArrayList<>(position);
+            for (int i = 0; i <= position; i++) {
+                AfterAction after = Actions.after(adjustPosition(player, pawn, i));
+                after.setTarget(pawn);
+                actions.add(after);
+            }
+            return Actions.sequence(actions.toArray(new Action[0]));
+//            return adjustPosition(player, pawn, position);
         }
 
         private static Action adjustPosition(Player player, Image image, int position) {
@@ -132,23 +143,46 @@ public class GameState {
         }
 
         private static MoveToAction adjustPosition(Image image, Vector2 pawnPosition) {
-            MoveToAction moveToAction = Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.2f);
+            MoveToAction moveToAction = Actions.moveToAligned(
+                    pawnPosition.x,
+                    pawnPosition.y,
+                    Align.center,
+                    0.25f,
+                    Interpolation.exp5Out
+            );
             moveToAction.setActor(image);
             return moveToAction;
         }
 
         Action move(int origin, int destination, Player player) {
             Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
-            if (destination == LAST_POSITION) {
-                // TODO better effect when pawn reaches end
-                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
-                scale.setActor(pawn);
-                return Actions.sequence(
-                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
-            } else {
-                pawns.put(destination, pawn);
-                return adjustPosition(player, pawn, destination);
+            int steps = destination - origin;
+            List<Action> actions = new ArrayList<>(steps);
+            for (int i = 0; i <= steps; i++) {
+                int currentStep = origin + i;
+                if (currentStep == LAST_POSITION) {
+                    ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+                    scale.setActor(pawn);
+                    actions.add(Actions.sequence(scale, Actions.run(pawn::remove)));
+                } else {
+                    AfterAction after = Actions.after(adjustPosition(player, pawn, currentStep));
+                    after.setTarget(pawn);
+                    actions.add(after);
+                }
             }
+            if (destination != LAST_POSITION) {
+                pawns.put(destination, pawn);
+            }
+            return Actions.sequence(actions.toArray(new Action[0]));
+//                // TODO better effect when pawn reaches end
+//                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+//                scale.setActor(pawn);
+//                return Actions.sequence(
+//                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
+//            } else {
+//                pawns.put(destination, pawn);
+//                return adjustPosition(player, pawn, destination);
+//            }
         }
 
         public Action remove(int destination) {
