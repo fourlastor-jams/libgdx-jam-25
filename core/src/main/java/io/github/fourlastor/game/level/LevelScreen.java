@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -70,6 +70,7 @@ public class LevelScreen extends ScreenAdapter {
         stage.addActor(ySort);
         instructions = new TypingLabel("", new Font(font));
         instructions.setPosition(10, 245);
+        instructions.setVisible(false);
         stage.addActor(instructions);
         p1name = atlas.findRegion("text/p1");
         p2name = atlas.findRegion("text/p2");
@@ -125,11 +126,19 @@ public class LevelScreen extends ScreenAdapter {
 
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
-        Button rollButton = new TextButton("Roll", buttonStyle);
+        Image rollButton = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-throw-dice"));
         playerName.setDrawable(new TextureRegionDrawable(player == Player.ONE ? p1name : p2name));
         updateInstructions(player, "Roll the dice");
 
-        rollButton.setPosition(10, 10);
+        if (player == Player.ONE) {
+            rollButton.setPosition(10, stage.getHeight()- 60);
+        } else {
+            rollButton.setPosition(stage.getWidth() - 10, stage.getHeight() - 60, Align.right);
+        }
+        RepeatAction highlight = Actions.forever(Actions.sequence(
+                Actions.color(Color.BLACK, 0.5f),
+                Actions.color(Color.WHITE, 0.5f)
+        ));
         rollButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -147,8 +156,11 @@ public class LevelScreen extends ScreenAdapter {
                 }
                 pickMove(player, rollAmount, dices);
                 rollButton.remove();
+                rollButton.removeAction(highlight);
+                rollButton.setColor(Color.WHITE);
             }
         });
+        rollButton.addAction(highlight);
         stage.addActor(rollButton);
     }
 
@@ -162,13 +174,22 @@ public class LevelScreen extends ScreenAdapter {
         }
 
         Image d0 = new Image(dices.get(0));
-        d0.setPosition(10, 15);
         Image d1 = new Image(dices.get(1));
-        d1.setPosition(10, 55);
         Image d2 = new Image(dices.get(2));
-        d2.setPosition(50, 15);
         Image d3 = new Image(dices.get(3));
-        d3.setPosition(50, 55);
+        int multiplier;
+        int sign;
+        if (player == Player.ONE) {
+            multiplier = 1;
+            sign = -1;
+        } else {
+            multiplier = 2;
+            sign = 1;
+        }
+        d0.setPosition(multiplier * stage.getWidth() / 3 + sign * 150, stage.getHeight() - 80, Align.center);
+        d1.setPosition(multiplier * stage.getWidth() / 3 + sign * 110, stage.getHeight() - 80, Align.center);
+        d2.setPosition(multiplier * stage.getWidth() / 3 + sign * 70, stage.getHeight() - 80, Align.center);
+        d3.setPosition(multiplier * stage.getWidth() / 3 + sign * 30, stage.getHeight() - 80, Align.center);
         stage.addActor(d0);
         stage.addActor(d1);
         stage.addActor(d2);
