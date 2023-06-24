@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -151,6 +152,7 @@ public class LevelScreen extends ScreenAdapter {
         pawn.addAction(blinking);
         Image highlight = new Image(atlas.findRegion("effects/highlight-" + player.color));
         Vector2 pawnPosition = Positions.toWorldAtCenter(player, move.destination);
+        highlight.setTouchable(Touchable.disabled);
         highlight.setPosition(pawnPosition.x, pawnPosition.y, Align.center);
         highlight.setVisible(false);
         stage.addActor(highlight);
