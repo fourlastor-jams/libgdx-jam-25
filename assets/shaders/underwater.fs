@@ -7,19 +7,20 @@
 #endif
 
 varying vec2 v_texCoords;
+varying vec4 v_color;
 uniform float u_time;
 uniform sampler2D u_texture;
 
 float GodRay(float scale,float threshold,float speed,float angle, vec2 uv){
-	float value = pow(sin((uv.x+uv.y*angle+u_time*speed)*scale*10.0),6.0);
-    value+=float(threshold<value);
+    float value = pow(sin((uv.x+uv.y*-angle+(u_time / 5.0)*speed)*scale*5.0),6.0);
+    value+=float(threshold/15.0<value);
     return clamp(value,0.0,1.0);
 }
 
 void main()
 {
-	vec2 uv = v_texCoords;
-	vec4 color = texture2D(u_texture, uv);
+    vec2 uv = vec2(v_texCoords.s, 1.0 - v_texCoords.t);
+    vec4 color = texture2D(u_texture, v_texCoords);
     float light = GodRay(22.0,0.5,-0.003,0.2, uv)*	0.3;
     light+=GodRay(47.0,	0.99,	0.02,	0.2, uv)*	0.1;
     light+=GodRay(25.0,0.9,		-0.01,	0.2, uv)*	0.2;
@@ -34,5 +35,5 @@ void main()
     vec3 WaterBot = vec3(0.08,0.12,0.3);
     vec3 WaterColor = WaterBot+uv.y*(WaterTop-WaterBot);
     vec3 Color = WaterColor+light*(LightColor-WaterColor);
-	gl_FragColor = vec4(Color,0.4f + color.r * 0.0001); // adding color.r otherwise the shader compiles out u_texture and fails
+    gl_FragColor = vec4(Color, color.a) * 0.3 + (v_color * color * 0.7);
 }
