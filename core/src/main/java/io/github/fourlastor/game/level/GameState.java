@@ -111,7 +111,7 @@ public class GameState {
         }
 
         boolean reserveAvailable() {
-            return pawns.size + completed < 7;
+            return !availablePawns.isEmpty();
         }
 
         boolean isPawnAtPosition(int desiredPosition) {
