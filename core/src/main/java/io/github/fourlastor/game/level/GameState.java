@@ -162,6 +162,9 @@ public class GameState {
                 int currentStep = origin + i;
                 if (currentStep == Positions.LAST_POSITION) {
                     ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+                    if (player == Player.TWO) {
+                        pawn.setOrigin(Align.right | Align.top);
+                    }
                     scale.setActor(pawn);
                     actions.add(Actions.sequence(scale, bubbles, Actions.run(pawn::remove)));
                 } else {
