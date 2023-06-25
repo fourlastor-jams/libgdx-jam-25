@@ -21,9 +21,11 @@ public abstract class Move {
         }
     }
 
-    public abstract Action play(GameState state, Pawn pawn);
+    public abstract Action play(GameState state, Pawn pawn, Action bubbles);
 
-    public abstract String name();
+    public boolean isLastStep() {
+        return destination == Positions.LAST_POSITION;
+    }
 
     public static class PlaceFromReserve extends Move {
 
@@ -32,13 +34,8 @@ public abstract class Move {
         }
 
         @Override
-        public Action play(GameState state, Pawn pawn) {
+        public Action play(GameState state, Pawn pawn, Action bubbles) {
             return state.placeFromReserve(player, destination, pawn);
-        }
-
-        @Override
-        public String name() {
-            return "Res " + destination;
         }
 
         @Override
@@ -57,13 +54,8 @@ public abstract class Move {
         }
 
         @Override
-        public Action play(GameState state, Pawn pawn) {
-            return state.moveFromBoard(player, origin, destination);
-        }
-
-        @Override
-        public String name() {
-            return "Mov " + origin + ">" + destination;
+        public Action play(GameState state, Pawn pawn, Action bubbles) {
+            return state.moveFromBoard(player, origin, destination, bubbles);
         }
 
         @Override

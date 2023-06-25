@@ -18,7 +18,6 @@ import java.util.Objects;
 
 public class GameState {
 
-    public static final int LAST_POSITION = 14;
     private static final Runnable EMPTY = () -> {};
     private final Board p1Board;
     private final Board p2Board;
@@ -49,11 +48,11 @@ public class GameState {
 
     public boolean placeAvailable(int desiredPosition, Board own, Board other) {
         // overshoot
-        if (desiredPosition > LAST_POSITION) {
+        if (desiredPosition > Positions.LAST_POSITION) {
             return false;
         }
         // correct finish
-        if (desiredPosition == LAST_POSITION) {
+        if (desiredPosition == Positions.LAST_POSITION) {
             return true;
         }
         // check for own pawn already at desired position
@@ -76,6 +75,10 @@ public class GameState {
         return ownBoard(player).pawnAt(position);
     }
 
+    public boolean isPawnAtPosition(Player player, int position) {
+        return ownBoard(player).isPawnAtPosition(position);
+    }
+
     public List<Pawn> availablePawns(Player player) {
         return ownBoard(player).availablePawns;
     }
@@ -89,17 +92,20 @@ public class GameState {
     }
 
     public Action placeFromReserve(Player player, int destination, Pawn pawn) {
-        return Actions.parallel(ownBoard(player).add(player, destination, pawn), maybeCapturePawn(player, destination));
+        return Actions.parallel(
+                ownBoard(player).add(player, destination, pawn),
+                maybeCapturePawn(player, destination, Actions.run(EMPTY)));
     }
 
-    public Action moveFromBoard(Player player, int origin, int destination) {
+    public Action moveFromBoard(Player player, int origin, int destination, Action bubbles) {
         Board ownBoard = ownBoard(player);
-        return Actions.sequence(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
+        return Actions.sequence(
+                ownBoard.move(origin, destination, player, bubbles), maybeCapturePawn(player, destination, bubbles));
     }
 
-    private Action maybeCapturePawn(Player player, int destination) {
+    private Action maybeCapturePawn(Player player, int destination, Action bubbles) {
         if (destination > 3 && destination < 12) {
-            return otherBoard(player).remove(destination);
+            return otherBoard(player).remove(destination, bubbles);
         }
 
         return Actions.run(EMPTY);
@@ -151,36 +157,39 @@ public class GameState {
             return moveToAction;
         }
 
-        Action move(int origin, int destination, Player player) {
+        Action move(int origin, int destination, Player player, Action bubbles) {
             Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
             int steps = destination - origin;
             List<Action> actions = new ArrayList<>(steps);
             for (int i = 0; i <= steps; i++) {
                 int currentStep = origin + i;
-                if (currentStep == LAST_POSITION) {
+                if (currentStep == Positions.LAST_POSITION) {
                     ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
+                    if (player == Player.TWO) {
+                        pawn.setOrigin(Align.right | Align.top);
+                    }
                     scale.setActor(pawn);
-                    actions.add(Actions.sequence(scale, Actions.run(pawn::remove)));
+                    actions.add(Actions.sequence(scale, bubbles, Actions.run(pawn::remove)));
                 } else {
                     AfterAction after = Actions.after(adjustPosition(player, pawn, currentStep));
                     after.setTarget(pawn);
                     actions.add(after);
                 }
             }
-            if (destination != LAST_POSITION) {
+            if (destination != Positions.LAST_POSITION) {
                 pawns.put(destination, pawn);
             }
             return Actions.sequence(actions.toArray(new Action[0]));
         }
 
-        public Action remove(int destination) {
+        public Action remove(int destination, Action captureBubbles) {
             Pawn pawn = pawns.remove(destination);
             if (pawn == null) {
                 return Actions.run(EMPTY);
             }
             availablePawns.add(pawn);
 
-            return adjustPosition(pawn, pawn.originalPosition);
+            return Actions.parallel(adjustPosition(pawn, pawn.originalPosition), captureBubbles);
         }
 
         public Pawn pawnAt(int position) {

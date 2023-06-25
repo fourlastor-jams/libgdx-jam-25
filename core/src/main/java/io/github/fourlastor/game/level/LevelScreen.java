@@ -1,11 +1,15 @@
 package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -29,10 +33,12 @@ import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.tommyettinger.textra.Font;
 import com.github.tommyettinger.textra.TypingLabel;
+import io.github.fourlastor.game.ui.ParticleEmitter;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
 import io.github.fourlastor.harlequin.animation.Animation;
 import io.github.fourlastor.harlequin.animation.FixedFrameAnimation;
+import io.github.fourlastor.perceptual.Perceptual;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -44,6 +50,7 @@ public class LevelScreen extends ScreenAdapter {
 
     private static final float FADE_OUT_DURATION = 0.6f;
     private static final float LONG_FADE_OUT_DURATION = FADE_OUT_DURATION * 1.5f;
+    private static final String TAG = "Round";
     private final InputMultiplexer inputMultiplexer;
 
     private final Stage stage;
@@ -56,9 +63,11 @@ public class LevelScreen extends ScreenAdapter {
     private final TextureRegion p2name;
     private final Image playerName;
     private final TypingLabel instructions;
+    private final AssetManager assetManager;
     private final DiceTextures textures;
     private final ShaderProgram underwaterShader;
-
+    private final Music music;
+    private final Sound bubbleSound;
     private float time = 0f;
 
     @Inject
@@ -68,13 +77,20 @@ public class LevelScreen extends ScreenAdapter {
             TextureAtlas atlas,
             GWTRNG rng,
             AssetManager assetManager,
-            DiceTextures textures) {
+            DiceTextures textures,
+            Music music,
+            Sound bubbleSound) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
         this.rng = rng;
+        this.assetManager = assetManager;
         this.textures = textures;
-        underwaterShader = assetManager.get("shaders/underwater.fs");
+        this.underwaterShader = assetManager.get("shaders/underwater.fs");
+        this.music = music;
+        this.bubbleSound = bubbleSound;
+        music.setVolume(Perceptual.perceptualToAmplitude(0.5f));
+        music.setLooping(true);
         BitmapFont font = assetManager.get("fonts/play-24.fnt");
         Image image = new Image(atlas.findRegion("main_art"));
         stage.addActor(image);
@@ -89,7 +105,6 @@ public class LevelScreen extends ScreenAdapter {
         playerName = new Image(p1name);
         playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
         stage.addActor(playerName);
-
         List<Animation<Drawable>> p1Drawables = Arrays.asList(
                 createAnimation(atlas.findRegions("pawns/clam/idle 1/idle")),
                 createAnimation(atlas.findRegions("pawns/clam/idle 2/idle")));
@@ -151,7 +166,7 @@ public class LevelScreen extends ScreenAdapter {
     }
 
     private void presentRoll(Player player) {
-        Gdx.app.debug("Round", "Starting round for " + player);
+        Gdx.app.debug(TAG, "Starting round for " + player);
         Image rollButton = new Image(atlas.findRegion("text/p" + (player.pnum()) + "-throw-dice"));
         playerName.setDrawable(new TextureRegionDrawable(player == Player.ONE ? p1name : p2name));
         updateInstructions(player, "Roll the dice");
@@ -189,7 +204,7 @@ public class LevelScreen extends ScreenAdapter {
     }
 
     private void pickMove(Player player, int rollAmount, Array<Drawable> dices) {
-        Gdx.app.debug("Round", "Player rolled " + rollAmount);
+        Gdx.app.debug(TAG, "Player rolled " + rollAmount);
         updateInstructions(player, "Pick a pawn to move " + rollAmount + " spaces");
 
         Image d0 = new Image(dices.get(0));
@@ -226,7 +241,7 @@ public class LevelScreen extends ScreenAdapter {
         cleanups.add(rollText::remove);
 
         if (rollAmount <= 0) {
-            Gdx.app.debug("Round", "Player rolled a zero");
+            Gdx.app.debug(TAG, "Player rolled a zero");
             stage.addAction(skipRound(player, cleanups));
             return;
         }
@@ -234,7 +249,7 @@ public class LevelScreen extends ScreenAdapter {
         List<Move> moves = state.getAvailableMoves(player, rollAmount);
 
         if (moves.isEmpty()) {
-            Gdx.app.debug("Round", "No available moves: " + player);
+            Gdx.app.debug(TAG, "No available moves: " + player);
             stage.addAction(skipRound(player, cleanups));
             return;
         }
@@ -266,7 +281,7 @@ public class LevelScreen extends ScreenAdapter {
         Action blinking =
                 Actions.forever(Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         pawn.addAction(blinking);
-        Vector2 pawnPosition = move.destination == GameState.LAST_POSITION
+        Vector2 pawnPosition = move.destination == Positions.LAST_POSITION
                 ? null
                 : Positions.toWorldAtCenter(player, move.destination);
         Image highlight;
@@ -319,9 +334,19 @@ public class LevelScreen extends ScreenAdapter {
         for (Runnable cleanup : cleanups) {
             cleanup.run();
         }
-        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> {
+        boolean pawnCaptured = move.destination >= 4
+                && move.destination <= 11
+                && state.isPawnAtPosition(next(player), move.destination);
+        Action bubbles = pawnCaptured || move.isLastStep()
+                ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination)))
+                : Actions.run(() -> {});
+        stage.addAction(Actions.sequence(move.play(state, pawn, bubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
                 displayWinner(player);
+                showParticles(new Vector2(stage.getWidth() * 0.15f, 0), 1f);
+                showParticles(new Vector2(stage.getWidth() * 0.35f, 0), 1f);
+                showParticles(new Vector2(stage.getWidth() * 0.55f, 0), 1f);
+                showParticles(new Vector2(stage.getWidth() * 0.75f, 0), 1f);
             } else {
                 Player next = move.next();
                 float fadeOutDuration = FADE_OUT_DURATION;
@@ -335,7 +360,7 @@ public class LevelScreen extends ScreenAdapter {
                 presentRoll(next);
             }
         })));
-        Gdx.app.debug("Round", "Playing move: " + move);
+        Gdx.app.debug(TAG, "Playing move: " + move);
     }
 
     private void displayRollAgain(Player player, int destination, float fadeOutDuration) {
@@ -346,6 +371,19 @@ public class LevelScreen extends ScreenAdapter {
                 Actions.parallel(Actions.fadeOut(fadeOutDuration), Actions.moveBy(0f, 20f, fadeOutDuration)),
                 Actions.run(image::remove)));
         stage.addActor(image);
+        showParticles(position);
+    }
+
+    private void showParticles(Vector2 position, float scale) {
+        ParticleEmitter particles =
+                new ParticleEmitter(new ParticleEffect(assetManager.get("effects/bubbles.pfx")), scale);
+        particles.setPosition(position.x, position.y, Align.center);
+        stage.addActor(particles);
+        bubbleSound.play(Perceptual.amplitudeToPerceptual(0.5f));
+    }
+
+    private void showParticles(Vector2 position) {
+        showParticles(position, 0.5f);
     }
 
     private void displayProtected(Player player, int destination) {
@@ -378,6 +416,14 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(Color.DARK_GRAY, true);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            if (music.isPlaying()) {
+                music.pause();
+            } else {
+                music.play();
+            }
+            Gdx.app.log(TAG, "Music playing: " + music.isPlaying());
+        }
         underwaterShader.bind();
         underwaterShader.setUniformf("u_time", time);
         time += delta;
@@ -390,10 +436,12 @@ public class LevelScreen extends ScreenAdapter {
     public void show() {
         inputMultiplexer.addProcessor(stage);
         stage.getBatch().setShader(underwaterShader);
+        music.play();
     }
 
     @Override
     public void hide() {
+        music.stop();
         stage.getBatch().setShader(null);
         time = 0f;
         inputMultiplexer.removeProcessor(stage);

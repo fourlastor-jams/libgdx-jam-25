@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     env:
-      ITCH_PROJECT: 'sandramoen/libgxd-game-jam-25'
+      ITCH_PROJECT: 'sandramoen/the-royal-game-of-ur'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
