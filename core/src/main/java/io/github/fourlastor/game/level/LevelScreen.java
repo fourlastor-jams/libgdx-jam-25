@@ -33,6 +33,7 @@ import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.tommyettinger.textra.Font;
 import com.github.tommyettinger.textra.TypingLabel;
+import io.github.fourlastor.game.di.modules.AssetsModule;
 import io.github.fourlastor.game.ui.ParticleEmitter;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
@@ -68,6 +69,7 @@ public class LevelScreen extends ScreenAdapter {
     private final ShaderProgram underwaterShader;
     private final Music music;
     private final Sound bubbleSound;
+    private final SoundPlayer soundPlayer;
     private float time = 0f;
 
     @Inject
@@ -79,7 +81,7 @@ public class LevelScreen extends ScreenAdapter {
             AssetManager assetManager,
             DiceTextures textures,
             Music music,
-            Sound bubbleSound) {
+            SoundPlayer soundPlayer) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
@@ -88,7 +90,8 @@ public class LevelScreen extends ScreenAdapter {
         this.textures = textures;
         this.underwaterShader = assetManager.get("shaders/underwater.fs");
         this.music = music;
-        this.bubbleSound = bubbleSound;
+        this.bubbleSound = assetManager.get(AssetsModule.BUBBLE_SOUND_PATH);
+        this.soundPlayer = soundPlayer;
         music.setVolume(Perceptual.perceptualToAmplitude(0.5f));
         music.setLooping(true);
         BitmapFont font = assetManager.get("fonts/play-24.fnt");
@@ -145,7 +148,7 @@ public class LevelScreen extends ScreenAdapter {
             p2Pawns.add(actor);
             ySort.addActor(actor);
         }
-        this.state = new GameState(p1Pawns, p2Pawns);
+        this.state = new GameState(p1Pawns, p2Pawns, soundPlayer);
 
         Player firstPlayer = rng.getRandomElement(Player.values());
 
@@ -193,6 +196,7 @@ public class LevelScreen extends ScreenAdapter {
                     }
                     rollAmount += rolled;
                 }
+                soundPlayer.roll();
                 pickMove(player, rollAmount, dices);
                 rollButton.remove();
                 rollButton.removeAction(highlight);
@@ -315,6 +319,7 @@ public class LevelScreen extends ScreenAdapter {
         ClickListener clickListener = new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                soundPlayer.select();
                 onMovePicked(player, cleanups, move, pawn);
             }
         };
@@ -394,6 +399,7 @@ public class LevelScreen extends ScreenAdapter {
                 Actions.parallel(
                         Actions.fadeOut(LONG_FADE_OUT_DURATION), Actions.moveBy(0f, -20f, LONG_FADE_OUT_DURATION)),
                 Actions.run(image::remove)));
+        soundPlayer.bubbles();
         stage.addActor(image);
     }
 
@@ -401,6 +407,7 @@ public class LevelScreen extends ScreenAdapter {
         Image actor = new Image(atlas.findRegion("text/p" + player.pnum() + "-won"));
         actor.setPosition(stage.getWidth() / 2f, stage.getHeight() / 2f, Align.center);
         playerName.setVisible(false);
+        soundPlayer.tada();
         stage.addActor(actor);
     }
 
@@ -417,6 +424,7 @@ public class LevelScreen extends ScreenAdapter {
     public void render(float delta) {
         ScreenUtils.clear(Color.DARK_GRAY, true);
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            soundPlayer.toggle();
             if (music.isPlaying()) {
                 music.pause();
             } else {
