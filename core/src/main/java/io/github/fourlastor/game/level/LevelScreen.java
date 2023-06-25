@@ -335,8 +335,11 @@ public class LevelScreen extends ScreenAdapter {
         Gdx.app.debug("Round", "Playing move: " + move);
     }
 
-    private static void displayWinner(Player player) {
-        Gdx.app.log("Round", player + " won!!!");
+    private void displayWinner(Player player) {
+        Image actor = new Image(atlas.findRegion("text/p"+ player.pnum() +"-won"));
+        actor.setPosition(stage.getWidth() / 2f, stage.getHeight() / 2f, Align.center );
+        playerName.setVisible(false);
+        stage.addActor(actor);
     }
 
     private Player next(Player player) {
