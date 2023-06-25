@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-public class ParticleEmitter extends Actor  {
+public class ParticleEmitter extends Actor {
 
     private final ParticleEffect effect;
 

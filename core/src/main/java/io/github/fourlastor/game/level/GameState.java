@@ -92,12 +92,15 @@ public class GameState {
     }
 
     public Action placeFromReserve(Player player, int destination, Pawn pawn) {
-        return Actions.parallel(ownBoard(player).add(player, destination, pawn), maybeCapturePawn(player, destination, Actions.run(EMPTY)));
+        return Actions.parallel(
+                ownBoard(player).add(player, destination, pawn),
+                maybeCapturePawn(player, destination, Actions.run(EMPTY)));
     }
 
     public Action moveFromBoard(Player player, int origin, int destination, Action bubbles) {
         Board ownBoard = ownBoard(player);
-        return Actions.sequence(ownBoard.move(origin, destination, player, bubbles), maybeCapturePawn(player, destination, bubbles));
+        return Actions.sequence(
+                ownBoard.move(origin, destination, player, bubbles), maybeCapturePawn(player, destination, bubbles));
     }
 
     private Action maybeCapturePawn(Player player, int destination, Action bubbles) {
@@ -186,10 +189,7 @@ public class GameState {
             }
             availablePawns.add(pawn);
 
-            return Actions.parallel(
-                    adjustPosition(pawn, pawn.originalPosition),
-                    captureBubbles
-            );
+            return Actions.parallel(adjustPosition(pawn, pawn.originalPosition), captureBubbles);
         }
 
         public Pawn pawnAt(int position) {

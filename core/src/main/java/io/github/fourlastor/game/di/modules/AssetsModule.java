@@ -45,7 +45,8 @@ public class AssetsModule {
         assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load("fonts/play-24.fnt", BitmapFont.class);
         assetManager.load(MUSIC_PATH, Music.class);
-        ParticleEffectLoader.ParticleEffectParameter particlesLoadOption = new ParticleEffectLoader.ParticleEffectParameter();
+        ParticleEffectLoader.ParticleEffectParameter particlesLoadOption =
+                new ParticleEffectLoader.ParticleEffectParameter();
         particlesLoadOption.atlasFile = PATH_TEXTURE_ATLAS;
         particlesLoadOption.atlasPrefix = "effects/";
         assetManager.load("effects/bubbles.pfx", ParticleEffect.class, particlesLoadOption);

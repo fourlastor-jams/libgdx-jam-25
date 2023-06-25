@@ -63,7 +63,8 @@ public class Positions {
     }
 
     public static Vector2 toWorldAtCenter(Player player, int position) {
-        return toWorldAtOrigin(player, Math.min(position, LAST_POSITION - 1)).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
+        return toWorldAtOrigin(player, Math.min(position, LAST_POSITION - 1))
+                .add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
     }
 
     public static GridPoint2 toCoordinate(Vector2 position) {

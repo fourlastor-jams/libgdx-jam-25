@@ -193,7 +193,7 @@ public class LevelScreen extends ScreenAdapter {
                     }
                     rollAmount += rolled;
                 }
-                pickMove(player, 4, dices);
+                pickMove(player, rollAmount, dices);
                 rollButton.remove();
                 rollButton.removeAction(highlight);
                 rollButton.setColor(Color.WHITE);
@@ -334,8 +334,12 @@ public class LevelScreen extends ScreenAdapter {
         for (Runnable cleanup : cleanups) {
             cleanup.run();
         }
-        boolean pawnCaptured = move.destination >= 4 && move.destination <= 11 && state.isPawnAtPosition(next(player), move.destination);
-        Action bubbles = pawnCaptured || move.isLastStep() ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination))) : Actions.run(() -> {});
+        boolean pawnCaptured = move.destination >= 4
+                && move.destination <= 11
+                && state.isPawnAtPosition(next(player), move.destination);
+        Action bubbles = pawnCaptured || move.isLastStep()
+                ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination)))
+                : Actions.run(() -> {});
         stage.addAction(Actions.sequence(move.play(state, pawn, bubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
                 displayWinner(player);
@@ -371,7 +375,8 @@ public class LevelScreen extends ScreenAdapter {
     }
 
     private void showParticles(Vector2 position, float scale) {
-        ParticleEmitter particles = new ParticleEmitter(new ParticleEffect(assetManager.get("effects/bubbles.pfx")), scale);
+        ParticleEmitter particles =
+                new ParticleEmitter(new ParticleEffect(assetManager.get("effects/bubbles.pfx")), scale);
         particles.setPosition(position.x, position.y, Align.center);
         stage.addActor(particles);
         bubbleSound.play(Perceptual.amplitudeToPerceptual(0.5f));
