@@ -305,7 +305,7 @@ public class LevelScreen extends ScreenAdapter {
         ClickListener clickListener = new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                onMovePicked(cleanups, move, pawn);
+                onMovePicked(player, cleanups, move, pawn);
             }
         };
         pawn.addListener(clickListener);
@@ -320,12 +320,23 @@ public class LevelScreen extends ScreenAdapter {
         };
     }
 
-    private void onMovePicked(List<Runnable> cleanups, Move move, Pawn pawn) {
+    private void onMovePicked(Player player, List<Runnable> cleanups, Move move, Pawn pawn) {
         for (Runnable cleanup : cleanups) {
             cleanup.run();
         }
-        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> presentRoll(move.next()))));
+        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> {
+            if (state.hasPlayerWon(player)) {
+                displayWinner(player);
+            } else {
+                presentRoll(move.next());
+            }
+
+        })));
         Gdx.app.debug("Round", "Playing move: " + move);
+    }
+
+    private static void displayWinner(Player player) {
+        Gdx.app.log("Round", player + " won!!!");
     }
 
     private Player next(Player player) {

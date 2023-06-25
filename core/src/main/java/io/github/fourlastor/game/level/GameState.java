@@ -67,6 +67,11 @@ public class GameState {
         return true;
     }
 
+    public boolean hasPlayerWon(Player player) {
+        Board board = ownBoard(player);
+        return board.pawns.isEmpty() && board.availablePawns.isEmpty();
+    }
+
     public Pawn pawnAt(Player player, int position) {
         return ownBoard(player).pawnAt(position);
     }
