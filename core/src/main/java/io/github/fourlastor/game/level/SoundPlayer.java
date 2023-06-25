@@ -53,6 +53,8 @@ public class SoundPlayer {
             return;
         }
 
-        sound.play(Perceptual.amplitudeToPerceptual(rng.nextFloat(0.5f)));
+        sound.play(Perceptual.amplitudeToPerceptual(
+                0.3f + rng.nextFloat(0.2f)
+        ));
     }
 }
