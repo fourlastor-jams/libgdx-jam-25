@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.assets.loaders.ShaderProgramLoader;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -30,6 +31,7 @@ public class AssetsModule {
     private static final String PATH_UNDERWATER_SHADER = "shaders/underwater.fs";
     private static final String MUSIC_PATH =
             "audio/music/relax-chill-out-music-for-landscapes-under-water-animals-forests-8105.ogg";
+    private static final String BUBBLE_SOUND_PATH = "audio/sounds/bubbles.ogg";
 
     @Provides
     @Singleton
@@ -43,10 +45,11 @@ public class AssetsModule {
         assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load("fonts/play-24.fnt", BitmapFont.class);
         assetManager.load(MUSIC_PATH, Music.class);
-        ParticleEffectLoader.ParticleEffectParameter parameter = new ParticleEffectLoader.ParticleEffectParameter();
-        parameter.atlasFile = PATH_TEXTURE_ATLAS;
-        parameter.atlasPrefix = "effects/";
-        assetManager.load("effects/bubbles.pfx", ParticleEffect.class, parameter);
+        ParticleEffectLoader.ParticleEffectParameter particlesLoadOption = new ParticleEffectLoader.ParticleEffectParameter();
+        particlesLoadOption.atlasFile = PATH_TEXTURE_ATLAS;
+        particlesLoadOption.atlasPrefix = "effects/";
+        assetManager.load("effects/bubbles.pfx", ParticleEffect.class, particlesLoadOption);
+        assetManager.load(BUBBLE_SOUND_PATH, Sound.class);
         assetManager.finishLoading();
         return assetManager;
     }
@@ -60,6 +63,11 @@ public class AssetsModule {
     @Provides
     public Music music(AssetManager assetManager) {
         return assetManager.get(MUSIC_PATH);
+    }
+
+    @Provides
+    public Sound sound(AssetManager assetManager) {
+        return assetManager.get(BUBBLE_SOUND_PATH);
     }
 
     @Provides

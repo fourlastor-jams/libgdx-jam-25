@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
@@ -66,6 +67,7 @@ public class LevelScreen extends ScreenAdapter {
     private final DiceTextures textures;
     private final ShaderProgram underwaterShader;
     private final Music music;
+    private final Sound bubbleSound;
     private float time = 0f;
 
     @Inject
@@ -76,7 +78,8 @@ public class LevelScreen extends ScreenAdapter {
             GWTRNG rng,
             AssetManager assetManager,
             DiceTextures textures,
-            Music music) {
+            Music music,
+            Sound bubbleSound) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
@@ -85,6 +88,7 @@ public class LevelScreen extends ScreenAdapter {
         this.textures = textures;
         this.underwaterShader = assetManager.get("shaders/underwater.fs");
         this.music = music;
+        this.bubbleSound = bubbleSound;
         music.setVolume(Perceptual.perceptualToAmplitude(0.5f));
         music.setLooping(true);
         BitmapFont font = assetManager.get("fonts/play-24.fnt");
@@ -189,7 +193,7 @@ public class LevelScreen extends ScreenAdapter {
                     }
                     rollAmount += rolled;
                 }
-                pickMove(player, rollAmount, dices);
+                pickMove(player, 4, dices);
                 rollButton.remove();
                 rollButton.removeAction(highlight);
                 rollButton.setColor(Color.WHITE);
@@ -370,6 +374,7 @@ public class LevelScreen extends ScreenAdapter {
         ParticleEmitter particles = new ParticleEmitter(new ParticleEffect(assetManager.get("effects/bubbles.pfx")), scale);
         particles.setPosition(position.x, position.y, Align.center);
         stage.addActor(particles);
+        bubbleSound.play(Perceptual.amplitudeToPerceptual(0.5f));
     }
 
     private void showParticles(Vector2 position) {
