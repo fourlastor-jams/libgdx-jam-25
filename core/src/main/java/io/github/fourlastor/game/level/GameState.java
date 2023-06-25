@@ -152,13 +152,21 @@ public class GameState {
         }
 
         private Action adjustPosition(Image image, Vector2 pawnPosition) {
+            return adjustPosition(image, pawnPosition, true);
+        }
+
+        private Action adjustPosition(Image image, Vector2 pawnPosition, boolean playSound) {
             MoveToAction moveToAction =
                     Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.25f, Interpolation.exp5Out);
             moveToAction.setActor(image);
-            return Actions.sequence(
-                    Actions.run(player::pawn),
-                    moveToAction
-            );
+            if (playSound) {
+                return Actions.sequence(
+                        Actions.run(player::pawn),
+                        moveToAction
+                );
+            } else {
+                return moveToAction;
+            }
         }
 
         Action move(int origin, int destination, Player player, Action bubbles) {
@@ -193,7 +201,7 @@ public class GameState {
             }
             availablePawns.add(pawn);
 
-            return Actions.parallel(adjustPosition(pawn, pawn.originalPosition), captureBubbles);
+            return Actions.parallel(adjustPosition(pawn, pawn.originalPosition, false), captureBubbles);
         }
 
         public Pawn pawnAt(int position) {
