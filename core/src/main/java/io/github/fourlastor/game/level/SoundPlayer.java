@@ -38,34 +38,34 @@ public class SoundPlayer {
     }
 
     public void bubbles() {
-        play(bubbles);
+        play(bubbles, 0.5f);
     }
 
     public void pawn() {
-        play(pawn);
+        play(pawn, 0.5f);
     }
 
     public void roll() {
-        play(roll);
+        play(roll, 0.5f);
     }
 
     public void tada() {
-        play(tada);
+        play(tada, 0.5f);
     }
 
     public void powerup() {
-        play(powerup);
+        play(powerup, 0.35f);
     }
 
     public void hurt() {
-        play(hurt);
+        play(hurt, 0.35f);
     }
 
-    private void play(Sound sound) {
+    private void play(Sound sound, float volume) {
         if (muted) {
             return;
         }
 
-        sound.play(Perceptual.amplitudeToPerceptual(0.3f + rng.nextFloat(0.2f)));
+        sound.play(Perceptual.perceptualToAmplitude(volume), 0.9f + rng.nextFloat(0.2f), 0f);
     }
 }
