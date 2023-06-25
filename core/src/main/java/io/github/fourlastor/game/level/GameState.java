@@ -104,7 +104,6 @@ public class GameState {
         final IntMap<Pawn> pawns = new IntMap<>();
         private final List<Pawn> availablePawns;
 
-        private int completed = 0;
 
         public Board(List<Pawn> pawns) {
             this.availablePawns = pawns;
@@ -168,15 +167,6 @@ public class GameState {
                 pawns.put(destination, pawn);
             }
             return Actions.sequence(actions.toArray(new Action[0]));
-            //                // TODO better effect when pawn reaches end
-            //                ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
-            //                scale.setActor(pawn);
-            //                return Actions.sequence(
-            //                        adjustPosition(player, pawn, destination - 1), scale, Actions.run(pawn::remove));
-            //            } else {
-            //                pawns.put(destination, pawn);
-            //                return adjustPosition(player, pawn, destination);
-            //            }
         }
 
         public Action remove(int destination) {
@@ -187,11 +177,6 @@ public class GameState {
             availablePawns.add(pawn);
 
             return adjustPosition(pawn, pawn.originalPosition);
-        }
-
-        public void complete(int destination) {
-            remove(destination);
-            completed += 1;
         }
 
         public Pawn pawnAt(int position) {
