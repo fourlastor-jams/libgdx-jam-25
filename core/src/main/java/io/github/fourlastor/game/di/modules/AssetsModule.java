@@ -35,6 +35,7 @@ public class AssetsModule {
     public static final String PAWN_SOUND_PATH = "audio/sounds/pawn.ogg";
     public static final String ROLL_SOUND_PATH = "audio/sounds/roll.ogg";
     public static final String TADA_SOUND_PATH = "audio/sounds/tada.ogg";
+    public static final String POWERUP_SOUND_PATH = "audio/sounds/powerup.ogg";
 
     @Provides
     @Singleton
@@ -57,6 +58,7 @@ public class AssetsModule {
         assetManager.load(PAWN_SOUND_PATH, Sound.class);
         assetManager.load(ROLL_SOUND_PATH, Sound.class);
         assetManager.load(TADA_SOUND_PATH, Sound.class);
+        assetManager.load(POWERUP_SOUND_PATH, Sound.class);
         assetManager.finishLoading();
         return assetManager;
     }

@@ -341,8 +341,14 @@ public class LevelScreen extends ScreenAdapter {
         boolean pawnCaptured = move.destination >= 4
                 && move.destination <= 11
                 && state.isPawnAtPosition(next(player), move.destination);
-        Action bubbles = pawnCaptured || move.isLastStep()
-                ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination)))
+        boolean lastStep = move.isLastStep();
+        Action bubbles = pawnCaptured || lastStep
+                ? Actions.run(() -> {
+            showParticles(Positions.toWorldAtCenter(player, move.destination));
+            if (lastStep) {
+                soundPlayer.powerup();
+            }
+        })
                 : Actions.run(() -> {});
         stage.addAction(Actions.sequence(move.play(state, pawn, bubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
