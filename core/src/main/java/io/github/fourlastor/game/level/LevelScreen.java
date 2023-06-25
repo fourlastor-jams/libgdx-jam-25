@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.github.tommyettinger.textra.Font;
 import com.github.tommyettinger.textra.TypingLabel;
+import io.github.fourlastor.game.ui.ParticleEmitter;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
 import io.github.fourlastor.harlequin.animation.Animation;
@@ -60,10 +61,10 @@ public class LevelScreen extends ScreenAdapter {
     private final TextureRegion p2name;
     private final Image playerName;
     private final TypingLabel instructions;
+    private final AssetManager assetManager;
     private final DiceTextures textures;
     private final ShaderProgram underwaterShader;
     private final Music music;
-
     private float time = 0f;
 
     @Inject
@@ -79,6 +80,7 @@ public class LevelScreen extends ScreenAdapter {
         this.stage = stage;
         this.atlas = atlas;
         this.rng = rng;
+        this.assetManager = assetManager;
         this.textures = textures;
         this.underwaterShader = assetManager.get("shaders/underwater.fs");
         this.music = music;
@@ -98,7 +100,6 @@ public class LevelScreen extends ScreenAdapter {
         playerName = new Image(p1name);
         playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
         stage.addActor(playerName);
-
         List<Animation<Drawable>> p1Drawables = Arrays.asList(
                 createAnimation(atlas.findRegions("pawns/clam/idle 1/idle")),
                 createAnimation(atlas.findRegions("pawns/clam/idle 2/idle")));
@@ -355,6 +356,9 @@ public class LevelScreen extends ScreenAdapter {
                 Actions.parallel(Actions.fadeOut(fadeOutDuration), Actions.moveBy(0f, 20f, fadeOutDuration)),
                 Actions.run(image::remove)));
         stage.addActor(image);
+        ParticleEmitter particles = new ParticleEmitter(assetManager.get("effects/bubbles.pfx"));
+        particles.setPosition(position.x, position.y, Align.center);
+        stage.addActor(particles);
     }
 
     private void displayProtected(Player player, int destination) {

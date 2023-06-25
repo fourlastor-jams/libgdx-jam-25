@@ -1,9 +1,11 @@
 package io.github.fourlastor.game.di.modules;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.ParticleEffectLoader;
 import com.badlogic.gdx.assets.loaders.ShaderProgramLoader;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -41,6 +43,10 @@ public class AssetsModule {
         assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load("fonts/play-24.fnt", BitmapFont.class);
         assetManager.load(MUSIC_PATH, Music.class);
+        ParticleEffectLoader.ParticleEffectParameter parameter = new ParticleEffectLoader.ParticleEffectParameter();
+        parameter.atlasFile = PATH_TEXTURE_ATLAS;
+        parameter.atlasPrefix = "effects/";
+        assetManager.load("effects/bubbles.pfx", ParticleEffect.class, parameter);
         assetManager.finishLoading();
         return assetManager;
     }
