@@ -148,7 +148,7 @@ public class LevelScreen extends ScreenAdapter {
             p2Pawns.add(actor);
             ySort.addActor(actor);
         }
-        this.state = new GameState(p1Pawns, p2Pawns, soundPlayer);
+        this.state = new GameState(p1Pawns, p2Pawns);
 
         Player firstPlayer = rng.getRandomElement(Player.values());
 

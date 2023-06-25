@@ -32,7 +32,6 @@ public class AssetsModule {
     private static final String MUSIC_PATH =
             "audio/music/relax-chill-out-music-for-landscapes-under-water-animals-forests-8105.ogg";
     public static final String BUBBLE_SOUND_PATH = "audio/sounds/bubbles.ogg";
-    public static final String PAWN_SOUND_PATH = "audio/sounds/pawn.ogg";
     public static final String ROLL_SOUND_PATH = "audio/sounds/roll.ogg";
     public static final String SELECT_SOUND_PATH = "audio/sounds/select.ogg";
     public static final String TADA_SOUND_PATH = "audio/sounds/tada.ogg";
@@ -55,7 +54,6 @@ public class AssetsModule {
         particlesLoadOption.atlasPrefix = "effects/";
         assetManager.load("effects/bubbles.pfx", ParticleEffect.class, particlesLoadOption);
         assetManager.load(BUBBLE_SOUND_PATH, Sound.class);
-        assetManager.load(PAWN_SOUND_PATH, Sound.class);
         assetManager.load(ROLL_SOUND_PATH, Sound.class);
         assetManager.load(SELECT_SOUND_PATH, Sound.class);
         assetManager.load(TADA_SOUND_PATH, Sound.class);
