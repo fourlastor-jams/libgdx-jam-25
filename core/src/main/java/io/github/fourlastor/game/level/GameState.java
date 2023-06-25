@@ -61,7 +61,7 @@ public class GameState {
             return false;
         }
         // shared board on rosette, check also the opponent
-        if (desiredPosition == 7 && other.isPawnAtPosition(desiredPosition)) {
+        if (desiredPosition == Positions.BATTLE_ROSETTE_POSITION && other.isPawnAtPosition(desiredPosition)) {
             return false;
         }
         return true;

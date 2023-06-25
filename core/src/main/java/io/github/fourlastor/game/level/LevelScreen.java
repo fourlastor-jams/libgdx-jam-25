@@ -42,6 +42,8 @@ import squidpony.squidmath.GWTRNG;
 
 public class LevelScreen extends ScreenAdapter {
 
+    private static final float FADE_OUT_DURATION = 0.6f;
+    private static final float LONG_FADE_OUT_DURATION = FADE_OUT_DURATION * 1.5f;
     private final InputMultiplexer inputMultiplexer;
 
     private final Stage stage;
@@ -321,10 +323,40 @@ public class LevelScreen extends ScreenAdapter {
             if (state.hasPlayerWon(player)) {
                 displayWinner(player);
             } else {
-                presentRoll(move.next());
+                Player next = move.next();
+                float fadeOutDuration = FADE_OUT_DURATION;
+                if (move.destination == Positions.BATTLE_ROSETTE_POSITION) {
+                    displayProtected(player, move.destination);
+                    fadeOutDuration = LONG_FADE_OUT_DURATION;
+                }
+                if (next == player) {
+                    displayRollAgain(player, move.destination, fadeOutDuration);
+                }
+                presentRoll(next);
             }
         })));
         Gdx.app.debug("Round", "Playing move: " + move);
+    }
+
+    private void displayRollAgain(Player player, int destination, float fadeOutDuration) {
+        Vector2 position = Positions.toWorldAtCenter(player, destination);
+        Image image = new Image(atlas.findRegion("text/roll-again"));
+        image.setPosition(position.x, position.y + 30, Align.center);
+        image.addAction(Actions.sequence(
+                Actions.parallel(Actions.fadeOut(fadeOutDuration), Actions.moveBy(0f, 20f, fadeOutDuration)),
+                Actions.run(image::remove)));
+        stage.addActor(image);
+    }
+
+    private void displayProtected(Player player, int destination) {
+        Vector2 position = Positions.toWorldAtCenter(player, destination);
+        Image image = new Image(atlas.findRegion("text/safe"));
+        image.setPosition(position.x, position.y - 30, Align.center);
+        image.addAction(Actions.sequence(
+                Actions.parallel(
+                        Actions.fadeOut(LONG_FADE_OUT_DURATION), Actions.moveBy(0f, -20f, LONG_FADE_OUT_DURATION)),
+                Actions.run(image::remove)));
+        stage.addActor(image);
     }
 
     private void displayWinner(Player player) {
