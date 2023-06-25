@@ -317,9 +317,8 @@ public class LevelScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(Color.DARK_GRAY, true);
-        if (time > 0.01f) {
-            underwaterShader.setUniformf("u_time", time);
-        }
+        underwaterShader.bind();
+        underwaterShader.setUniformf("u_time", time);
         time += delta;
         stage.getViewport().apply();
         stage.act();
