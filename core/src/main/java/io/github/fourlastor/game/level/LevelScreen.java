@@ -157,7 +157,7 @@ public class LevelScreen extends ScreenAdapter {
 
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
-        Image rollButton = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-throw-dice"));
+        Image rollButton = new Image(atlas.findRegion("text/p" + (player.pnum()) + "-throw-dice"));
         playerName.setDrawable(new TextureRegionDrawable(player == Player.ONE ? p1name : p2name));
         updateInstructions(player, "Roll the dice");
 
@@ -201,7 +201,7 @@ public class LevelScreen extends ScreenAdapter {
         Image d1 = new Image(dices.get(1));
         Image d2 = new Image(dices.get(2));
         Image d3 = new Image(dices.get(3));
-        Image rollText = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-num-" + rollAmount));
+        Image rollText = new Image(atlas.findRegion("text/p" + (player.pnum()) + "-num-" + rollAmount));
         int multiplier;
         int sign;
         if (player == Player.ONE) {
