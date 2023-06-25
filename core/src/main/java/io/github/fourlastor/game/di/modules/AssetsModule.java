@@ -2,6 +2,7 @@ package io.github.fourlastor.game.di.modules;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.ShaderProgramLoader;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -25,6 +26,7 @@ public class AssetsModule {
     private static final String PATH_WAVE_SHADER = "shaders/wave.fs";
     public static final String WHITE_PIXEL = "white-pixel";
     private static final String PATH_UNDERWATER_SHADER = "shaders/underwater.fs";
+    private static final String MUSIC_PATH = "audio/music/relax-chill-out-music-for-landscapes-under-water-animals-forests-8105.ogg";
 
     @Provides
     @Singleton
@@ -37,6 +39,7 @@ public class AssetsModule {
         assetManager.load(PATH_WAVE_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load(PATH_UNDERWATER_SHADER, ShaderProgram.class, useDefaultVertexShader);
         assetManager.load("fonts/play-24.fnt", BitmapFont.class);
+        assetManager.load(MUSIC_PATH, Music.class);
         assetManager.finishLoading();
         return assetManager;
     }
@@ -45,6 +48,11 @@ public class AssetsModule {
     @Singleton
     public TextureAtlas textureAtlas(AssetManager assetManager) {
         return assetManager.get(PATH_TEXTURE_ATLAS, TextureAtlas.class);
+    }
+
+    @Provides
+    public Music music(AssetManager assetManager) {
+        return assetManager.get(MUSIC_PATH);
     }
 
     @Provides
