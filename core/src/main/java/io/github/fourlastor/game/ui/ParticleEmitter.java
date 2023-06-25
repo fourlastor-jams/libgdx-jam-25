@@ -8,9 +8,9 @@ public class ParticleEmitter extends Actor  {
 
     private final ParticleEffect effect;
 
-    public ParticleEmitter(ParticleEffect effect) {
+    public ParticleEmitter(ParticleEffect effect, float scale) {
         this.effect = effect;
-        effect.scaleEffect(0.5f);
+        effect.scaleEffect(scale);
         effect.reset(false);
     }
 

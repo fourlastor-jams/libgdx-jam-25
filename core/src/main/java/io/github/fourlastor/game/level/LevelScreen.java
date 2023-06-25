@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -334,6 +335,10 @@ public class LevelScreen extends ScreenAdapter {
         stage.addAction(Actions.sequence(move.play(state, pawn, capturedBubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
                 displayWinner(player);
+                showParticles(new Vector2(stage.getWidth() * 0.15f, 0), 1f);
+                showParticles(new Vector2(stage.getWidth() * 0.35f, 0), 1f);
+                showParticles(new Vector2(stage.getWidth() * 0.55f, 0), 1f);
+                showParticles(new Vector2(stage.getWidth() * 0.75f, 0), 1f);
             } else {
                 Player next = move.next();
                 float fadeOutDuration = FADE_OUT_DURATION;
@@ -361,10 +366,14 @@ public class LevelScreen extends ScreenAdapter {
         showParticles(position);
     }
 
-    private void showParticles(Vector2 position) {
-        ParticleEmitter particles = new ParticleEmitter(assetManager.get("effects/bubbles.pfx"));
+    private void showParticles(Vector2 position, float scale) {
+        ParticleEmitter particles = new ParticleEmitter(new ParticleEffect(assetManager.get("effects/bubbles.pfx")), scale);
         particles.setPosition(position.x, position.y, Align.center);
         stage.addActor(particles);
+    }
+
+    private void showParticles(Vector2 position) {
+        showParticles(position, 0.5f);
     }
 
     private void displayProtected(Player player, int destination) {
