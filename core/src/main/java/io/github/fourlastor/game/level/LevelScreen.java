@@ -277,7 +277,7 @@ public class LevelScreen extends ScreenAdapter {
         Action blinking =
                 Actions.forever(Actions.sequence(Actions.color(Color.BLACK, 0.5f), Actions.color(Color.WHITE, 0.5f)));
         pawn.addAction(blinking);
-        Vector2 pawnPosition = move.destination == GameState.LAST_POSITION
+        Vector2 pawnPosition = move.destination == Positions.LAST_POSITION
                 ? null
                 : Positions.toWorldAtCenter(player, move.destination);
         Image highlight;
@@ -331,8 +331,8 @@ public class LevelScreen extends ScreenAdapter {
             cleanup.run();
         }
         boolean pawnCaptured = move.destination >= 4 && move.destination <= 11 && state.isPawnAtPosition(next(player), move.destination);
-        Action capturedBubbles = pawnCaptured ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination))) : Actions.run(() -> {});
-        stage.addAction(Actions.sequence(move.play(state, pawn, capturedBubbles), Actions.run(() -> {
+        Action bubbles = pawnCaptured || move.isLastStep() ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination))) : Actions.run(() -> {});
+        stage.addAction(Actions.sequence(move.play(state, pawn, bubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
                 displayWinner(player);
                 showParticles(new Vector2(stage.getWidth() * 0.15f, 0), 1f);

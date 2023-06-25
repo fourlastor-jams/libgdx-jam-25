@@ -12,6 +12,7 @@ public class Positions {
 
     public static final int BATTLE_ROSETTE_POSITION = 7;
     public static final List<Integer> ROSETTE_POSITIONS = Arrays.asList(3, BATTLE_ROSETTE_POSITION, 13);
+    public static final int LAST_POSITION = 14;
     private static final int TILE_WIDTH = 64;
     private static final float HALF_WIDTH = TILE_WIDTH / 2f;
     private static final int TILE_HEIGHT = 32;
@@ -62,7 +63,7 @@ public class Positions {
     }
 
     public static Vector2 toWorldAtCenter(Player player, int position) {
-        return toWorldAtOrigin(player, position).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
+        return toWorldAtOrigin(player, Math.min(position, LAST_POSITION - 1)).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
     }
 
     public static GridPoint2 toCoordinate(Vector2 position) {

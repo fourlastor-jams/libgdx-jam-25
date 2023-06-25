@@ -23,6 +23,10 @@ public abstract class Move {
 
     public abstract Action play(GameState state, Pawn pawn, Action bubbles);
 
+    public boolean isLastStep() {
+        return destination == Positions.LAST_POSITION;
+    }
+
     public static class PlaceFromReserve extends Move {
 
         PlaceFromReserve(Player player, int destination) {
