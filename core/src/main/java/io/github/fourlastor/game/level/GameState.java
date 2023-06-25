@@ -159,14 +159,10 @@ public class GameState {
             MoveToAction moveToAction =
                     Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.25f, Interpolation.exp5Out);
             moveToAction.setActor(image);
-            if (playSound) {
-                return Actions.sequence(
-                        Actions.run(player::pawn),
-                        moveToAction
-                );
-            } else {
-                return moveToAction;
-            }
+            return Actions.sequence(
+                    Actions.run(playSound ? player::pawn : player::hurt),
+                    moveToAction
+            );
         }
 
         Action move(int origin, int destination, Player player, Action bubbles) {

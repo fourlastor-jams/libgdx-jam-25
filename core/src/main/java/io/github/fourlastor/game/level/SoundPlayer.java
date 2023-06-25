@@ -17,6 +17,7 @@ public class SoundPlayer {
     private final Sound roll;
     private final Sound tada;
     private final Sound powerup;
+    private final Sound hurt;
 
     private final GWTRNG rng;
 
@@ -29,6 +30,7 @@ public class SoundPlayer {
         roll = manager.get(AssetsModule.ROLL_SOUND_PATH);
         tada = manager.get(AssetsModule.TADA_SOUND_PATH);
         powerup = manager.get(AssetsModule.POWERUP_SOUND_PATH);
+        hurt = manager.get(AssetsModule.HURT_SOUND_PATH);
         this.rng = rng;
     }
 
@@ -53,6 +55,10 @@ public class SoundPlayer {
 
     public void powerup() {
         play(powerup);
+    }
+
+    public void hurt() {
+        play(hurt);
     }
 
     private void play(Sound sound) {
