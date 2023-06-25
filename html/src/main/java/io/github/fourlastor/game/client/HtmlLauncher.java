@@ -20,6 +20,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return GdxGame.createGame(false);
+                return GdxGame.createGame(true);
         }
 }
