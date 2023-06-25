@@ -21,9 +21,7 @@ public abstract class Move {
         }
     }
 
-    public abstract Action play(GameState state, Pawn pawn);
-
-    public abstract String name();
+    public abstract Action play(GameState state, Pawn pawn, Action captureBubbles);
 
     public static class PlaceFromReserve extends Move {
 
@@ -32,13 +30,8 @@ public abstract class Move {
         }
 
         @Override
-        public Action play(GameState state, Pawn pawn) {
+        public Action play(GameState state, Pawn pawn, Action captureBubbles) {
             return state.placeFromReserve(player, destination, pawn);
-        }
-
-        @Override
-        public String name() {
-            return "Res " + destination;
         }
 
         @Override
@@ -57,13 +50,8 @@ public abstract class Move {
         }
 
         @Override
-        public Action play(GameState state, Pawn pawn) {
-            return state.moveFromBoard(player, origin, destination);
-        }
-
-        @Override
-        public String name() {
-            return "Mov " + origin + ">" + destination;
+        public Action play(GameState state, Pawn pawn, Action captureBubbles) {
+            return state.moveFromBoard(player, origin, destination, captureBubbles);
         }
 
         @Override

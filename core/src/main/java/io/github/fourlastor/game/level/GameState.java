@@ -76,6 +76,10 @@ public class GameState {
         return ownBoard(player).pawnAt(position);
     }
 
+    public boolean isPawnAtPosition(Player player, int position) {
+        return ownBoard(player).isPawnAtPosition(position);
+    }
+
     public List<Pawn> availablePawns(Player player) {
         return ownBoard(player).availablePawns;
     }
@@ -89,17 +93,17 @@ public class GameState {
     }
 
     public Action placeFromReserve(Player player, int destination, Pawn pawn) {
-        return Actions.parallel(ownBoard(player).add(player, destination, pawn), maybeCapturePawn(player, destination));
+        return Actions.parallel(ownBoard(player).add(player, destination, pawn), maybeCapturePawn(player, destination, Actions.run(EMPTY)));
     }
 
-    public Action moveFromBoard(Player player, int origin, int destination) {
+    public Action moveFromBoard(Player player, int origin, int destination, Action captureBubbles) {
         Board ownBoard = ownBoard(player);
-        return Actions.sequence(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination));
+        return Actions.sequence(ownBoard.move(origin, destination, player), maybeCapturePawn(player, destination, captureBubbles));
     }
 
-    private Action maybeCapturePawn(Player player, int destination) {
+    private Action maybeCapturePawn(Player player, int destination, Action captureBubbles) {
         if (destination > 3 && destination < 12) {
-            return otherBoard(player).remove(destination);
+            return otherBoard(player).remove(destination, captureBubbles);
         }
 
         return Actions.run(EMPTY);
@@ -173,14 +177,17 @@ public class GameState {
             return Actions.sequence(actions.toArray(new Action[0]));
         }
 
-        public Action remove(int destination) {
+        public Action remove(int destination, Action captureBubbles) {
             Pawn pawn = pawns.remove(destination);
             if (pawn == null) {
                 return Actions.run(EMPTY);
             }
             availablePawns.add(pawn);
 
-            return adjustPosition(pawn, pawn.originalPosition);
+            return Actions.parallel(
+                    adjustPosition(pawn, pawn.originalPosition),
+                    captureBubbles
+            );
         }
 
         public Pawn pawnAt(int position) {

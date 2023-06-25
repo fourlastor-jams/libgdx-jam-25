@@ -329,7 +329,9 @@ public class LevelScreen extends ScreenAdapter {
         for (Runnable cleanup : cleanups) {
             cleanup.run();
         }
-        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> {
+        boolean pawnCaptured = move.destination >= 4 && move.destination <= 11 && state.isPawnAtPosition(next(player), move.destination);
+        Action capturedBubbles = pawnCaptured ? Actions.run(() -> showParticles(Positions.toWorldAtCenter(player, move.destination))) : Actions.run(() -> {});
+        stage.addAction(Actions.sequence(move.play(state, pawn, capturedBubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
                 displayWinner(player);
             } else {
@@ -356,6 +358,10 @@ public class LevelScreen extends ScreenAdapter {
                 Actions.parallel(Actions.fadeOut(fadeOutDuration), Actions.moveBy(0f, 20f, fadeOutDuration)),
                 Actions.run(image::remove)));
         stage.addActor(image);
+        showParticles(position);
+    }
+
+    private void showParticles(Vector2 position) {
         ParticleEmitter particles = new ParticleEmitter(assetManager.get("effects/bubbles.pfx"));
         particles.setPosition(position.x, position.y, Align.center);
         stage.addActor(particles);
