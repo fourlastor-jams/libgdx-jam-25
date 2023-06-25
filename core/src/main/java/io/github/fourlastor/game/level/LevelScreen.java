@@ -35,13 +35,12 @@ import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
 import io.github.fourlastor.harlequin.animation.Animation;
 import io.github.fourlastor.harlequin.animation.FixedFrameAnimation;
+import io.github.fourlastor.perceptual.Perceptual;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
-
-import io.github.fourlastor.perceptual.Perceptual;
 import squidpony.squidmath.GWTRNG;
 
 public class LevelScreen extends ScreenAdapter {
@@ -74,7 +73,8 @@ public class LevelScreen extends ScreenAdapter {
             TextureAtlas atlas,
             GWTRNG rng,
             AssetManager assetManager,
-            DiceTextures textures, Music music) {
+            DiceTextures textures,
+            Music music) {
         this.inputMultiplexer = inputMultiplexer;
         this.stage = stage;
         this.atlas = atlas;
@@ -393,7 +393,7 @@ public class LevelScreen extends ScreenAdapter {
             } else {
                 music.play();
             }
-            Gdx.app.log(TAG,  "Music playing: " + music.isPlaying());
+            Gdx.app.log(TAG, "Music playing: " + music.isPlaying());
         }
         underwaterShader.bind();
         underwaterShader.setUniformf("u_time", time);

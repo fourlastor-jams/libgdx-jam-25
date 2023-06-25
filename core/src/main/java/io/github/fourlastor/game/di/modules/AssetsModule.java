@@ -26,7 +26,8 @@ public class AssetsModule {
     private static final String PATH_WAVE_SHADER = "shaders/wave.fs";
     public static final String WHITE_PIXEL = "white-pixel";
     private static final String PATH_UNDERWATER_SHADER = "shaders/underwater.fs";
-    private static final String MUSIC_PATH = "audio/music/relax-chill-out-music-for-landscapes-under-water-animals-forests-8105.ogg";
+    private static final String MUSIC_PATH =
+            "audio/music/relax-chill-out-music-for-landscapes-under-water-animals-forests-8105.ogg";
 
     @Provides
     @Singleton
