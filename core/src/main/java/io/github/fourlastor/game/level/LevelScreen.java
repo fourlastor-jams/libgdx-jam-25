@@ -36,6 +36,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
+
+import io.github.fourlastor.harlequin.animation.Animation;
+import io.github.fourlastor.harlequin.animation.FixedFrameAnimation;
 import squidpony.squidmath.GWTRNG;
 
 public class LevelScreen extends ScreenAdapter {
@@ -86,8 +89,8 @@ public class LevelScreen extends ScreenAdapter {
         playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
         stage.addActor(playerName);
 
-        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
-        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        Animation<Drawable> p1Drawable = createAnimation(atlas.findRegions("pawns/clam/idle 1/idle"));
+        Animation<Drawable> p2Drawable = createAnimation(atlas.findRegions("pawns/starfish/idle 1/idle"));
 
         List<Vector2> p1Pos = Arrays.asList(
                 new Vector2(110, 120),
@@ -111,12 +114,14 @@ public class LevelScreen extends ScreenAdapter {
 
         for (Vector2 pos : p1Pos) {
             Pawn actor = new Pawn(p1Drawable, pos);
+            actor.setProgress(rng.nextFloat(3));
             p1Pawns.add(actor);
             ySort.addActor(actor);
         }
 
         for (Vector2 pos : p2Pos) {
             Pawn actor = new Pawn(p2Drawable, pos);
+            actor.setProgress(rng.nextFloat(3));
             p2Pawns.add(actor);
             ySort.addActor(actor);
         }
@@ -125,6 +130,18 @@ public class LevelScreen extends ScreenAdapter {
         Player firstPlayer = rng.getRandomElement(Player.values());
 
         presentRoll(firstPlayer);
+    }
+
+    private Animation<Drawable> createAnimation(Array<TextureAtlas.AtlasRegion> regions) {
+        Array<Drawable> frames = new Array<>(regions.size);
+        for (TextureAtlas.AtlasRegion region : regions) {
+            frames.add(new TextureRegionDrawable(region));
+        }
+        return new FixedFrameAnimation<>(
+                0.25f,
+                frames,
+                Animation.PlayMode.LOOP
+        );
     }
 
     private void updateInstructions(Player player, String instruction) {
