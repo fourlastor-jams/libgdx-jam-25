@@ -31,14 +31,13 @@ import com.github.tommyettinger.textra.Font;
 import com.github.tommyettinger.textra.TypingLabel;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
+import io.github.fourlastor.harlequin.animation.Animation;
+import io.github.fourlastor.harlequin.animation.FixedFrameAnimation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
-
-import io.github.fourlastor.harlequin.animation.Animation;
-import io.github.fourlastor.harlequin.animation.FixedFrameAnimation;
 import squidpony.squidmath.GWTRNG;
 
 public class LevelScreen extends ScreenAdapter {
@@ -91,12 +90,10 @@ public class LevelScreen extends ScreenAdapter {
 
         List<Animation<Drawable>> p1Drawables = Arrays.asList(
                 createAnimation(atlas.findRegions("pawns/clam/idle 1/idle")),
-                createAnimation(atlas.findRegions("pawns/clam/idle 2/idle"))
-        );
+                createAnimation(atlas.findRegions("pawns/clam/idle 2/idle")));
         List<Animation<Drawable>> p2Drawables = Arrays.asList(
                 createAnimation(atlas.findRegions("pawns/starfish/idle 1/idle")),
-                createAnimation(atlas.findRegions("pawns/starfish/idle 2/idle"))
-        );
+                createAnimation(atlas.findRegions("pawns/starfish/idle 2/idle")));
 
         List<Vector2> p1Pos = Arrays.asList(
                 new Vector2(110, 120),
@@ -143,11 +140,7 @@ public class LevelScreen extends ScreenAdapter {
         for (TextureAtlas.AtlasRegion region : regions) {
             frames.add(new TextureRegionDrawable(region));
         }
-        return new FixedFrameAnimation<>(
-                0.25f,
-                frames,
-                Animation.PlayMode.LOOP
-        );
+        return new FixedFrameAnimation<>(0.25f, frames, Animation.PlayMode.LOOP);
     }
 
     private void updateInstructions(Player player, String instruction) {
@@ -183,7 +176,7 @@ public class LevelScreen extends ScreenAdapter {
                     }
                     rollAmount += rolled;
                 }
-                pickMove(player, rollAmount, dices);
+                pickMove(player, 1, dices);
                 rollButton.remove();
                 rollButton.removeAction(highlight);
                 rollButton.setColor(Color.WHITE);
@@ -330,14 +323,13 @@ public class LevelScreen extends ScreenAdapter {
             } else {
                 presentRoll(move.next());
             }
-
         })));
         Gdx.app.debug("Round", "Playing move: " + move);
     }
 
     private void displayWinner(Player player) {
-        Image actor = new Image(atlas.findRegion("text/p"+ player.pnum() +"-won"));
-        actor.setPosition(stage.getWidth() / 2f, stage.getHeight() / 2f, Align.center );
+        Image actor = new Image(atlas.findRegion("text/p" + player.pnum() + "-won"));
+        actor.setPosition(stage.getWidth() / 2f, stage.getHeight() / 2f, Align.center);
         playerName.setVisible(false);
         stage.addActor(actor);
     }

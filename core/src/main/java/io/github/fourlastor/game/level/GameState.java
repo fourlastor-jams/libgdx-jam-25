@@ -109,7 +109,6 @@ public class GameState {
         final IntMap<Pawn> pawns = new IntMap<>();
         private final List<Pawn> availablePawns;
 
-
         public Board(List<Pawn> pawns) {
             this.availablePawns = pawns;
         }
