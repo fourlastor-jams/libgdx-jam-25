@@ -22,11 +22,8 @@ void main()
     vec2 uv = vec2(v_texCoords.s, 1.0 - v_texCoords.t);
     vec4 color = texture2D(u_texture, v_texCoords);
     float light = GodRay(22.0,0.5,-0.003,0.2, uv)*	0.3;
-    light+=GodRay(47.0,	0.99,	0.02,	0.2, uv)*	0.1;
     light+=GodRay(25.0,0.9,		-0.01,	0.2, uv)*	0.2;
-    light+=GodRay(52.0,	0.4,	0.0001,	0.2, uv)*	0.1;
     light+=GodRay(49.0,	0.4,	0.0003,	0.2, uv)*	0.1;
-    light+=GodRay(57.0,	0.4,	-0.0001,0.2, uv)*	0.1;
     light+=GodRay(200.0,0.8,	-0.0001,0.2, uv)*	0.05;
     light-=pow((1.0-uv.y)*0.7,0.8);
     light=max(light,0.0);
