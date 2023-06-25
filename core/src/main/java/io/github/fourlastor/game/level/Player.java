@@ -9,4 +9,8 @@ public enum Player {
     Player(String color) {
         this.color = color;
     }
+
+    public int pnum() {
+        return ordinal() + 1;
+    }
 }

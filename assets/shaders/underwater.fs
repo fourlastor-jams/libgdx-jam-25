@@ -35,5 +35,5 @@ void main()
     vec3 WaterBot = vec3(0.08,0.12,0.3);
     vec3 WaterColor = WaterBot+uv.y*(WaterTop-WaterBot);
     vec3 Color = WaterColor+light*(LightColor-WaterColor);
-    gl_FragColor = vec4(Color, color.a) * 0.3 + (v_color * color * 0.7);
+    gl_FragColor = vec4(Color, color.a) * 0.15 + (v_color * color * 0.85);
 }

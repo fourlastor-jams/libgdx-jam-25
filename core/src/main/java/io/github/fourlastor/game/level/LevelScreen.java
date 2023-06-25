@@ -31,6 +31,8 @@ import com.github.tommyettinger.textra.Font;
 import com.github.tommyettinger.textra.TypingLabel;
 import io.github.fourlastor.game.ui.Pawn;
 import io.github.fourlastor.game.ui.YSort;
+import io.github.fourlastor.harlequin.animation.Animation;
+import io.github.fourlastor.harlequin.animation.FixedFrameAnimation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -86,8 +88,12 @@ public class LevelScreen extends ScreenAdapter {
         playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
         stage.addActor(playerName);
 
-        Drawable p1Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/clam"));
-        Drawable p2Drawable = new TextureRegionDrawable(atlas.findRegion("pawns/starfish"));
+        List<Animation<Drawable>> p1Drawables = Arrays.asList(
+                createAnimation(atlas.findRegions("pawns/clam/idle 1/idle")),
+                createAnimation(atlas.findRegions("pawns/clam/idle 2/idle")));
+        List<Animation<Drawable>> p2Drawables = Arrays.asList(
+                createAnimation(atlas.findRegions("pawns/starfish/idle 1/idle")),
+                createAnimation(atlas.findRegions("pawns/starfish/idle 2/idle")));
 
         List<Vector2> p1Pos = Arrays.asList(
                 new Vector2(110, 120),
@@ -110,13 +116,15 @@ public class LevelScreen extends ScreenAdapter {
         List<Pawn> p2Pawns = new ArrayList<>(7);
 
         for (Vector2 pos : p1Pos) {
-            Pawn actor = new Pawn(p1Drawable, pos);
+            Pawn actor = new Pawn(rng.getRandomElement(p1Drawables), pos);
+            actor.setProgress(rng.nextFloat(3));
             p1Pawns.add(actor);
             ySort.addActor(actor);
         }
 
         for (Vector2 pos : p2Pos) {
-            Pawn actor = new Pawn(p2Drawable, pos);
+            Pawn actor = new Pawn(rng.getRandomElement(p2Drawables), pos);
+            actor.setProgress(rng.nextFloat(3));
             p2Pawns.add(actor);
             ySort.addActor(actor);
         }
@@ -127,6 +135,14 @@ public class LevelScreen extends ScreenAdapter {
         presentRoll(firstPlayer);
     }
 
+    private Animation<Drawable> createAnimation(Array<TextureAtlas.AtlasRegion> regions) {
+        Array<Drawable> frames = new Array<>(regions.size);
+        for (TextureAtlas.AtlasRegion region : regions) {
+            frames.add(new TextureRegionDrawable(region));
+        }
+        return new FixedFrameAnimation<>(0.25f, frames, Animation.PlayMode.LOOP);
+    }
+
     private void updateInstructions(Player player, String instruction) {
         instructions.setText("Player " + player + ":\n[%25]" + instruction);
         instructions.restart();
@@ -134,7 +150,7 @@ public class LevelScreen extends ScreenAdapter {
 
     private void presentRoll(Player player) {
         Gdx.app.debug("Round", "Starting round for " + player);
-        Image rollButton = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-throw-dice"));
+        Image rollButton = new Image(atlas.findRegion("text/p" + (player.pnum()) + "-throw-dice"));
         playerName.setDrawable(new TextureRegionDrawable(player == Player.ONE ? p1name : p2name));
         updateInstructions(player, "Roll the dice");
 
@@ -178,7 +194,7 @@ public class LevelScreen extends ScreenAdapter {
         Image d1 = new Image(dices.get(1));
         Image d2 = new Image(dices.get(2));
         Image d3 = new Image(dices.get(3));
-        Image rollText = new Image(atlas.findRegion("text/p" + (player.ordinal() + 1) + "-num-" + rollAmount));
+        Image rollText = new Image(atlas.findRegion("text/p" + (player.pnum()) + "-num-" + rollAmount));
         int multiplier;
         int sign;
         if (player == Player.ONE) {
@@ -282,7 +298,7 @@ public class LevelScreen extends ScreenAdapter {
         ClickListener clickListener = new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                onMovePicked(cleanups, move, pawn);
+                onMovePicked(player, cleanups, move, pawn);
             }
         };
         pawn.addListener(clickListener);
@@ -297,12 +313,25 @@ public class LevelScreen extends ScreenAdapter {
         };
     }
 
-    private void onMovePicked(List<Runnable> cleanups, Move move, Pawn pawn) {
+    private void onMovePicked(Player player, List<Runnable> cleanups, Move move, Pawn pawn) {
         for (Runnable cleanup : cleanups) {
             cleanup.run();
         }
-        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> presentRoll(move.next()))));
+        stage.addAction(Actions.sequence(move.play(state, pawn), Actions.run(() -> {
+            if (state.hasPlayerWon(player)) {
+                displayWinner(player);
+            } else {
+                presentRoll(move.next());
+            }
+        })));
         Gdx.app.debug("Round", "Playing move: " + move);
+    }
+
+    private void displayWinner(Player player) {
+        Image actor = new Image(atlas.findRegion("text/p" + player.pnum() + "-won"));
+        actor.setPosition(stage.getWidth() / 2f, stage.getHeight() / 2f, Align.center);
+        playerName.setVisible(false);
+        stage.addActor(actor);
     }
 
     private Player next(Player player) {
