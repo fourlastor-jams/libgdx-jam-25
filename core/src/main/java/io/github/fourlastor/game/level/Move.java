@@ -2,11 +2,8 @@ package io.github.fourlastor.game.level;
 
 import com.badlogic.gdx.scenes.scene2d.Action;
 import io.github.fourlastor.game.ui.Pawn;
-import java.util.Arrays;
-import java.util.List;
 
 public abstract class Move {
-    private static final List<Integer> ROSETTE_POSITIONS = Arrays.asList(3, 7, 13);
 
     public final Player player;
     public final int destination;
@@ -17,7 +14,7 @@ public abstract class Move {
     }
 
     public Player next() {
-        if (ROSETTE_POSITIONS.contains(destination)) {
+        if (Positions.ROSETTE_POSITIONS.contains(destination)) {
             return player;
         } else {
             return player == Player.ONE ? Player.TWO : Player.ONE;

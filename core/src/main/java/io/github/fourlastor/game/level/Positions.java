@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 
 public class Positions {
 
+    public static final int BATTLE_ROSETTE_POSITION = 7;
+    public static final List<Integer> ROSETTE_POSITIONS = Arrays.asList(3, BATTLE_ROSETTE_POSITION, 13);
     private static final int TILE_WIDTH = 64;
     private static final float HALF_WIDTH = TILE_WIDTH / 2f;
     private static final int TILE_HEIGHT = 32;
