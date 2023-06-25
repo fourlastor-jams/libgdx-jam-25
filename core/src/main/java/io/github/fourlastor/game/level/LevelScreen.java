@@ -176,7 +176,7 @@ public class LevelScreen extends ScreenAdapter {
                     }
                     rollAmount += rolled;
                 }
-                pickMove(player, 1, dices);
+                pickMove(player, rollAmount, dices);
                 rollButton.remove();
                 rollButton.removeAction(highlight);
                 rollButton.setColor(Color.WHITE);
