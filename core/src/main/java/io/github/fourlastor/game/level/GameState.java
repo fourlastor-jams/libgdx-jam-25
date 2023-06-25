@@ -155,9 +155,9 @@ public class GameState {
             MoveToAction moveToAction =
                     Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.25f, Interpolation.exp5Out);
             moveToAction.setActor(image);
-            return Actions.parallel(
-                    moveToAction,
-                    Actions.run(player::pawn)
+            return Actions.sequence(
+                    Actions.run(player::pawn),
+                    moveToAction
             );
         }
 
@@ -165,7 +165,7 @@ public class GameState {
             Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
             int steps = destination - origin;
             List<Action> actions = new ArrayList<>(steps);
-            for (int i = 0; i <= steps; i++) {
+            for (int i = 1; i <= steps; i++) {
                 int currentStep = origin + i;
                 if (currentStep == Positions.LAST_POSITION) {
                     ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);

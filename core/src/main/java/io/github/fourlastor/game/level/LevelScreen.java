@@ -319,7 +319,6 @@ public class LevelScreen extends ScreenAdapter {
         ClickListener clickListener = new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                soundPlayer.select();
                 onMovePicked(player, cleanups, move, pawn);
             }
         };

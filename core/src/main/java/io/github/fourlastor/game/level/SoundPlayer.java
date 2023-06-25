@@ -15,7 +15,6 @@ public class SoundPlayer {
     private final Sound bubbles;
     private final Sound pawn;
     private final Sound roll;
-    private final Sound select;
     private final Sound tada;
 
     private final GWTRNG rng;
@@ -27,7 +26,6 @@ public class SoundPlayer {
         bubbles = manager.get(AssetsModule.BUBBLE_SOUND_PATH);
         pawn = manager.get(AssetsModule.PAWN_SOUND_PATH);
         roll = manager.get(AssetsModule.ROLL_SOUND_PATH);
-        select = manager.get(AssetsModule.SELECT_SOUND_PATH);
         tada = manager.get(AssetsModule.TADA_SOUND_PATH);
         this.rng = rng;
     }
@@ -47,11 +45,8 @@ public class SoundPlayer {
     public void roll() {
         play(roll);
     }
-    public void select() {
-        play(select);
-    }
     public void tada() {
-
+        play(tada);
     }
     private void play(Sound sound) {
         if (muted) {
