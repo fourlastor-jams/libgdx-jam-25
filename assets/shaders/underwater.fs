@@ -12,15 +12,15 @@ uniform float u_time;
 uniform sampler2D u_texture;
 
 float GodRay(float scale,float threshold,float speed,float angle, vec2 uv){
-	float value = pow(sin((uv.x+uv.y*-angle+(u_time / 5.0)*speed)*scale*5.0),6.0);
+    float value = pow(sin((uv.x+uv.y*-angle+(u_time / 5.0)*speed)*scale*5.0),6.0);
     value+=float(threshold/15.0<value);
     return clamp(value,0.0,1.0);
 }
 
 void main()
 {
-	vec2 uv = vec2(v_texCoords.s, 1.0 - v_texCoords.t);
-	vec4 color = texture2D(u_texture, v_texCoords);
+    vec2 uv = vec2(v_texCoords.s, 1.0 - v_texCoords.t);
+    vec4 color = texture2D(u_texture, v_texCoords);
     float light = GodRay(22.0,0.5,-0.003,0.2, uv)*	0.3;
     light+=GodRay(47.0,	0.99,	0.02,	0.2, uv)*	0.1;
     light+=GodRay(25.0,0.9,		-0.01,	0.2, uv)*	0.2;
