@@ -89,8 +89,14 @@ public class LevelScreen extends ScreenAdapter {
         playerName.setPosition(stage.getWidth() / 2, stage.getHeight() - 20, Align.center);
         stage.addActor(playerName);
 
-        Animation<Drawable> p1Drawable = createAnimation(atlas.findRegions("pawns/clam/idle 1/idle"));
-        Animation<Drawable> p2Drawable = createAnimation(atlas.findRegions("pawns/starfish/idle 1/idle"));
+        List<Animation<Drawable>> p1Drawables = Arrays.asList(
+                createAnimation(atlas.findRegions("pawns/clam/idle 1/idle")),
+                createAnimation(atlas.findRegions("pawns/clam/idle 2/idle"))
+        );
+        List<Animation<Drawable>> p2Drawables = Arrays.asList(
+                createAnimation(atlas.findRegions("pawns/starfish/idle 1/idle")),
+                createAnimation(atlas.findRegions("pawns/starfish/idle 2/idle"))
+        );
 
         List<Vector2> p1Pos = Arrays.asList(
                 new Vector2(110, 120),
@@ -113,14 +119,14 @@ public class LevelScreen extends ScreenAdapter {
         List<Pawn> p2Pawns = new ArrayList<>(7);
 
         for (Vector2 pos : p1Pos) {
-            Pawn actor = new Pawn(p1Drawable, pos);
+            Pawn actor = new Pawn(rng.getRandomElement(p1Drawables), pos);
             actor.setProgress(rng.nextFloat(3));
             p1Pawns.add(actor);
             ySort.addActor(actor);
         }
 
         for (Vector2 pos : p2Pos) {
-            Pawn actor = new Pawn(p2Drawable, pos);
+            Pawn actor = new Pawn(rng.getRandomElement(p2Drawables), pos);
             actor.setProgress(rng.nextFloat(3));
             p2Pawns.add(actor);
             ySort.addActor(actor);
