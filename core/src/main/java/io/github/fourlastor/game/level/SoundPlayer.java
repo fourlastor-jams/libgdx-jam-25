@@ -4,10 +4,9 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
 import io.github.fourlastor.game.di.modules.AssetsModule;
 import io.github.fourlastor.perceptual.Perceptual;
-import squidpony.squidmath.GWTRNG;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import squidpony.squidmath.GWTRNG;
 
 @Singleton
 public class SoundPlayer {
@@ -49,6 +48,7 @@ public class SoundPlayer {
     public void roll() {
         play(roll);
     }
+
     public void tada() {
         play(tada);
     }
@@ -66,8 +66,6 @@ public class SoundPlayer {
             return;
         }
 
-        sound.play(Perceptual.amplitudeToPerceptual(
-                0.3f + rng.nextFloat(0.2f)
-        ));
+        sound.play(Perceptual.amplitudeToPerceptual(0.3f + rng.nextFloat(0.2f)));
     }
 }

@@ -344,11 +344,11 @@ public class LevelScreen extends ScreenAdapter {
         boolean lastStep = move.isLastStep();
         Action bubbles = pawnCaptured || lastStep
                 ? Actions.run(() -> {
-            showParticles(Positions.toWorldAtCenter(player, move.destination));
-            if (lastStep) {
-                soundPlayer.powerup();
-            }
-        })
+                    showParticles(Positions.toWorldAtCenter(player, move.destination));
+                    if (lastStep) {
+                        soundPlayer.powerup();
+                    }
+                })
                 : Actions.run(() -> {});
         stage.addAction(Actions.sequence(move.play(state, pawn, bubbles), Actions.run(() -> {
             if (state.hasPlayerWon(player)) {
