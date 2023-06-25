@@ -19,9 +19,9 @@ public class Positions {
     private static final int ORIGIN_BOTTOM = 2;
     private static final int ORIGIN_LEFT = 315;
     private static final List<GridPoint2> P1_INITIAL_POSITIONS =
-            Arrays.asList(new GridPoint2(2, 4), new GridPoint2(2, 5), new GridPoint2(2, 6), new GridPoint2(2, 7));
-    private static final List<GridPoint2> P2_INITIAL_POSITIONS =
             Arrays.asList(new GridPoint2(0, 4), new GridPoint2(0, 5), new GridPoint2(0, 6), new GridPoint2(0, 7));
+    private static final List<GridPoint2> P2_INITIAL_POSITIONS =
+            Arrays.asList(new GridPoint2(2, 4), new GridPoint2(2, 5), new GridPoint2(2, 6), new GridPoint2(2, 7));
     private static final List<GridPoint2> SHARED_POSITIONS = Arrays.asList(
             new GridPoint2(1, 7),
             new GridPoint2(1, 6),
@@ -32,9 +32,9 @@ public class Positions {
             new GridPoint2(1, 1),
             new GridPoint2(1, 0));
     private static final List<GridPoint2> P1_FINAL_POSITIONS =
-            Arrays.asList(new GridPoint2(2, 0), new GridPoint2(2, 1));
-    private static final List<GridPoint2> P2_FINAL_POSITIONS =
             Arrays.asList(new GridPoint2(0, 0), new GridPoint2(0, 1));
+    private static final List<GridPoint2> P2_FINAL_POSITIONS =
+            Arrays.asList(new GridPoint2(2, 0), new GridPoint2(2, 1));
 
     public static final List<GridPoint2> P1_POSITIONS = Stream.of(
                     P1_INITIAL_POSITIONS, SHARED_POSITIONS, P1_FINAL_POSITIONS)
@@ -54,13 +54,13 @@ public class Positions {
         return positions(player).get(position);
     }
 
-    public static Vector2 toWorldAtOrigin(Player player, int position, Vector2 result) {
+    public static Vector2 toWorldAtOrigin(Player player, int position) {
         GridPoint2 map = positionFor(player, position);
-        return result.set(ORIGIN_LEFT, ORIGIN_BOTTOM).add((map.x - map.y) * HALF_WIDTH, (map.x + map.y) * HALF_HEIGHT);
+        return new Vector2(ORIGIN_LEFT, ORIGIN_BOTTOM).add((map.x - map.y) * HALF_WIDTH, (map.x + map.y) * HALF_HEIGHT);
     }
 
-    public static Vector2 toWorldAtCenter(Player player, int position, Vector2 result) {
-        return toWorldAtOrigin(player, position, result).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
+    public static Vector2 toWorldAtCenter(Player player, int position) {
+        return toWorldAtOrigin(player, position).add(HALF_WIDTH, TILE_THICKNESS + HALF_HEIGHT);
     }
 
     public static GridPoint2 toCoordinate(Vector2 position) {

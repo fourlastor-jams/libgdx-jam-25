@@ -114,6 +114,7 @@ dependencies {
     sources(libs.gdx.ai)
     sources(libs.textratypist)
     sources(libs.regexodus)
+    sources(libs.squidLib.core)
     sources(libs.harlequin.core)
     sources(libs.perceptual)
 }
