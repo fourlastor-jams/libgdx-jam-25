@@ -31,7 +31,12 @@ public class AssetsModule {
     private static final String PATH_UNDERWATER_SHADER = "shaders/underwater.fs";
     private static final String MUSIC_PATH =
             "audio/music/relax-chill-out-music-for-landscapes-under-water-animals-forests-8105.ogg";
-    private static final String BUBBLE_SOUND_PATH = "audio/sounds/bubbles.ogg";
+    public static final String BUBBLE_SOUND_PATH = "audio/sounds/bubbles.ogg";
+    public static final String PAWN_SOUND_PATH = "audio/sounds/pawn.ogg";
+    public static final String ROLL_SOUND_PATH = "audio/sounds/roll.ogg";
+    public static final String TADA_SOUND_PATH = "audio/sounds/tada.ogg";
+    public static final String POWERUP_SOUND_PATH = "audio/sounds/powerup.ogg";
+    public static final String HURT_SOUND_PATH = "audio/sounds/hurt.ogg";
 
     @Provides
     @Singleton
@@ -51,6 +56,11 @@ public class AssetsModule {
         particlesLoadOption.atlasPrefix = "effects/";
         assetManager.load("effects/bubbles.pfx", ParticleEffect.class, particlesLoadOption);
         assetManager.load(BUBBLE_SOUND_PATH, Sound.class);
+        assetManager.load(PAWN_SOUND_PATH, Sound.class);
+        assetManager.load(ROLL_SOUND_PATH, Sound.class);
+        assetManager.load(TADA_SOUND_PATH, Sound.class);
+        assetManager.load(POWERUP_SOUND_PATH, Sound.class);
+        assetManager.load(HURT_SOUND_PATH, Sound.class);
         assetManager.finishLoading();
         return assetManager;
     }
@@ -64,11 +74,6 @@ public class AssetsModule {
     @Provides
     public Music music(AssetManager assetManager) {
         return assetManager.get(MUSIC_PATH);
-    }
-
-    @Provides
-    public Sound sound(AssetManager assetManager) {
-        return assetManager.get(BUBBLE_SOUND_PATH);
     }
 
     @Provides

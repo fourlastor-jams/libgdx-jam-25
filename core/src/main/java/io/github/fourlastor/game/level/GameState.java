@@ -21,10 +21,12 @@ public class GameState {
     private static final Runnable EMPTY = () -> {};
     private final Board p1Board;
     private final Board p2Board;
+    private final SoundPlayer player;
 
-    public GameState(List<Pawn> p1Pawns, List<Pawn> p2Pawns) {
+    public GameState(List<Pawn> p1Pawns, List<Pawn> p2Pawns, SoundPlayer player) {
         p1Board = new Board(p1Pawns);
         p2Board = new Board(p2Pawns);
+        this.player = player;
     }
 
     public List<Move> getAvailableMoves(Player player, int rollAmount) {
@@ -111,7 +113,7 @@ public class GameState {
         return Actions.run(EMPTY);
     }
 
-    public static class Board {
+    public class Board {
         final IntMap<Pawn> pawns = new IntMap<>();
         private final List<Pawn> availablePawns;
 
@@ -142,26 +144,29 @@ public class GameState {
                 actions.add(after);
             }
             return Actions.sequence(actions.toArray(new Action[0]));
-            //            return adjustPosition(player, pawn, position);
         }
 
-        private static Action adjustPosition(Player player, Image image, int position) {
+        private Action adjustPosition(Player player, Image image, int position) {
             Vector2 pawnPosition = Positions.toWorldAtCenter(player, position);
             return adjustPosition(image, pawnPosition);
         }
 
-        private static MoveToAction adjustPosition(Image image, Vector2 pawnPosition) {
+        private Action adjustPosition(Image image, Vector2 pawnPosition) {
+            return adjustPosition(image, pawnPosition, true);
+        }
+
+        private Action adjustPosition(Image image, Vector2 pawnPosition, boolean playSound) {
             MoveToAction moveToAction =
                     Actions.moveToAligned(pawnPosition.x, pawnPosition.y, Align.center, 0.25f, Interpolation.exp5Out);
             moveToAction.setActor(image);
-            return moveToAction;
+            return Actions.sequence(Actions.run(playSound ? player::pawn : player::hurt), moveToAction);
         }
 
         Action move(int origin, int destination, Player player, Action bubbles) {
             Pawn pawn = Objects.requireNonNull(pawns.remove(origin));
             int steps = destination - origin;
             List<Action> actions = new ArrayList<>(steps);
-            for (int i = 0; i <= steps; i++) {
+            for (int i = 1; i <= steps; i++) {
                 int currentStep = origin + i;
                 if (currentStep == Positions.LAST_POSITION) {
                     ScaleToAction scale = Actions.scaleTo(0.1f, 0.1f, 0.2f);
@@ -189,7 +194,7 @@ public class GameState {
             }
             availablePawns.add(pawn);
 
-            return Actions.parallel(adjustPosition(pawn, pawn.originalPosition), captureBubbles);
+            return Actions.parallel(adjustPosition(pawn, pawn.originalPosition, false), captureBubbles);
         }
 
         public Pawn pawnAt(int position) {
